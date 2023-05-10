@@ -3,7 +3,6 @@ package com.example.myapp.activity;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -24,7 +23,6 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         usernameView = findViewById(R.id.username);
         datetimeView = findViewById(R.id.datetime);

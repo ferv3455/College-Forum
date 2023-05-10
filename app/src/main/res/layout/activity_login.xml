@@ -4,22 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.main.NotificationsFragment">
+    tools:context=".activity.LoginActivity">
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/notifications_tab_layout"
+        android:id="@+id/login_tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/notifications_pager"/>
+        app:layout_constraintBottom_toTopOf="@id/login_pager"/>
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/notifications_pager"
+        android:id="@+id/login_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notifications_tab_layout"/>
+        app:layout_constraintTop_toBottomOf="@id/login_tab_layout"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

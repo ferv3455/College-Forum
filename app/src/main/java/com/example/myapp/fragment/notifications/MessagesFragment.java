@@ -1,4 +1,4 @@
-package com.example.myapp.fragment.home;
+package com.example.myapp.fragment.notifications;
 
 import android.os.Bundle;
 
@@ -10,12 +10,12 @@ import android.view.ViewGroup;
 
 import com.example.myapp.R;
 
-public class NewRepliedFragment extends Fragment {
+public class MessagesFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home_new_replied, container, false);
+        return inflater.inflate(R.layout.fragment_notifications_messages, container, false);
     }
 }

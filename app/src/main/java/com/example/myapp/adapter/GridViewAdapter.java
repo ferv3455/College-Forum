@@ -41,7 +41,7 @@ public class GridViewAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        view = inflater.inflate(R.layout.image_item, null); // inflate the layout
+        view = inflater.inflate(R.layout.image_item, viewGroup, false); // inflate the layout
         ImageView icon = view.findViewById(R.id.image); // get the reference of ImageView
 //        icon.setImageURI(images[i]); // set images
 

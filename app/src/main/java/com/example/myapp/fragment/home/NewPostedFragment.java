@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,7 +73,7 @@ public class NewPostedFragment extends Fragment implements PostListAdapter.PostD
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_new_posted, container, false);
+        view = inflater.inflate(R.layout.fragment_home_new_posted, container, false);
         adapter = new PostListAdapter(getContext(), postList, this);
         recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setAdapter(adapter);

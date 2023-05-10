@@ -3,25 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.main.PersonalFragment">
+    tools:context=".fragment.notifications.LikesFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/hello_blank_fragment" />
-
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="300px"
-        android:layout_height="300px"
-        android:text="Login"
-        android:backgroundTint="@android:color/black"/>
-
-    <Button
-        android:id="@+id/personalSpaceButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Space" />
 
 </FrameLayout>

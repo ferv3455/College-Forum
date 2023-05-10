@@ -16,6 +16,6 @@ public class HotFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_hot, container, false);
+        return inflater.inflate(R.layout.fragment_home_hot, container, false);
     }
 }

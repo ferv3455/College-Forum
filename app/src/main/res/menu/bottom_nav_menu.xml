@@ -5,10 +5,6 @@
         android:icon="@drawable/home"
         android:title="@string/title_home" />
     <item
-        android:id="@+id/navigation_topics"
-        android:icon="@drawable/planet"
-        android:title="@string/title_topics" />
-    <item
         android:id="@+id/navigation_notifications"
         android:icon="@drawable/notebook"
         android:title="@string/title_notifications" />
