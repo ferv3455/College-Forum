@@ -11,4 +11,5 @@
     <string name="search_result_name">搜索结果</string>
     <string name="space_name">空间</string>
     <string name="login_name">登录</string>
+    <string name="chat_name">私信聊天</string>
 </resources>
