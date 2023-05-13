@@ -11,13 +11,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 
 import com.example.myapp.R;
-import com.example.myapp.adapter.GridViewAdapter;
+import com.example.myapp.adapter.EditableGridViewAdapter;
 import com.example.myapp.data.Post;
 
 import java.io.ByteArrayOutputStream;
@@ -35,9 +37,8 @@ public class NewPostActivity extends AppCompatActivity {
     private EditText titleEdit;
     private EditText contentEdit;
     private GridView imagesView;
-    private Button newImageButton;
     private Button submitButton;
-    private GridViewAdapter adapter;
+    private EditableGridViewAdapter adapter;
 
     private ArrayList<String> newImages = new ArrayList<>();
 
@@ -72,10 +73,11 @@ public class NewPostActivity extends AppCompatActivity {
         titleEdit = findViewById(R.id.titleEdit);
         contentEdit = findViewById(R.id.contentEdit);
         imagesView = findViewById(R.id.newImagesGridView);
-        newImageButton = findViewById(R.id.imageButton);
-        newImageButton.setOnClickListener(this::addImage);
         submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(this::submitPost);
+
+        findViewById(R.id.newLocationLayout).setOnClickListener(v -> Log.d("New Post", "Location"));
+        findViewById(R.id.newTagLayout).setOnClickListener(v -> Log.d("New Post", "Tag"));
 
         preferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
         titleEdit.setText(preferences.getString(TITLE, ""));
@@ -85,7 +87,7 @@ public class NewPostActivity extends AppCompatActivity {
             newImages.add(preferences.getString(String.format(INDEXED_IMAGE, i), "ERROR"));
         }
 
-        adapter = new GridViewAdapter(this, newImages.toArray(new String[newImages.size()]));
+        adapter = new EditableGridViewAdapter(this, newImages.toArray(new String[newImages.size()]));
         imagesView.setAdapter(adapter);
     }
 
@@ -93,6 +95,11 @@ public class NewPostActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         newImageLauncher.launch(intent);
+    }
+
+    public void removeImage(int i) {
+        newImages.remove(i);
+        adapter.setImages(newImages.toArray(new String[newImages.size()]));
     }
 
     public void submitPost(View view) {

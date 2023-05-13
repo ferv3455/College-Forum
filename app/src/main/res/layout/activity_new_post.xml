@@ -4,33 +4,70 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.NewPostActivity">
+    tools:context=".activity.NewPostActivity"
+    android:padding="16dp">
 
-    <EditText
-        android:id="@+id/titleEdit"
+    <TextView
+        android:id="@+id/newPostActivityTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Title"
-        android:inputType="text"
-        app:layout_constraintBottom_toTopOf="@+id/contentEdit"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/new_post_activity_title"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/titleEdit"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/contentEdit"
+    <Button
+        android:id="@+id/submitButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:gravity="start|top"
-        android:hint="Content"
-        android:inputType="textMultiLine"
-        android:lines="6"
-        app:layout_constraintBottom_toTopOf="@+id/newImagesGridView"
+        android:text="发布"
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/titleEdit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/titleEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/new_post_title"
+        android:inputType="text"
+        android:textStyle="bold"
+        android:background="@null"
+        android:padding="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/newPostSep1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newPostActivityTitle" />
+
+    <View
+        android:id="@+id/newPostSep1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray"
+        app:layout_constraintBottom_toTopOf="@+id/contentEdit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleEdit" />
+
+    <EditText
+        android:id="@+id/contentEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start|top"
+        android:hint="@string/new_post_content"
+        android:inputType="textMultiLine"
+        android:lines="8"
+        android:background="@null"
+        android:padding="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/newImagesGridView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newPostSep1" />
 
     <com.example.myapp.customview.FullGridView
         android:id="@+id/newImagesGridView"
@@ -39,28 +76,97 @@
         android:horizontalSpacing="4dp"
         android:numColumns="3"
         android:verticalSpacing="4dp"
-        app:layout_constraintBottom_toTopOf="@+id/imageButton"
+        android:padding="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/newPostSep2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contentEdit" />
 
-    <Button
-        android:id="@+id/submitButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="提交"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <View
+        android:id="@+id/newPostSep2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray"
+        app:layout_constraintBottom_toTopOf="@+id/newLocationLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newImagesGridView" />
 
-    <Button
-        android:id="@+id/imageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="添加图片"
-        app:layout_constraintBottom_toTopOf="@+id/submitButton"
+    <LinearLayout
+        android:id="@+id/newLocationLayout"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintBottom_toTopOf="@+id/newTagLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newImagesGridView"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newPostSep2"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/locationImageView"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            app:tint="@color/gray"
+            app:srcCompat="@drawable/location" />
+
+        <TextView
+            android:id="@+id/locationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16dp"
+            android:text="@string/select_location"
+            android:textColor="@color/gray" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/newTagLayout"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintBottom_toTopOf="@+id/newPostSep4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newLocationLayout"
+        android:focusable="true">
+            
+        <ImageView
+            android:id="@+id/tagImageView"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            app:tint="@color/gray"
+            app:srcCompat="@drawable/tag" />
+
+        <TextView
+            android:id="@+id/tagTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16dp"
+            android:text="@string/select_tag"
+            android:textColor="@color/gray" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/newPostSep4"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newTagLayout" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
