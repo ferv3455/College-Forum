@@ -21,7 +21,7 @@ class FollowViewHolder extends RecyclerView.ViewHolder implements View.OnClickLi
         super(itemView);
         this.adapter = adapter;
         itemView.setOnClickListener(this);
-        usernameView = itemView.findViewById(R.id.username);
+        usernameView = itemView.findViewById(R.id.follower_name);
     }
 
     @Override
@@ -59,6 +59,7 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
     public void onBindViewHolder(@NonNull FollowViewHolder holder, int position) {
         Follow follow = followList.get(position);
         // Update other views in the holder based on the Follow object
+        holder.usernameView.setText(follow.getFollowerName());
     }
 
     @Override
