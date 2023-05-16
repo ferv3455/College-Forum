@@ -11,8 +11,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.myapp.R;
 import com.example.myapp.fragment.home.NewPostedFragment;
-import com.example.myapp.fragment.space.FollowerListFragment;
-import com.example.myapp.fragment.space.FollowingListFragment;
+import com.example.myapp.fragment.space.FollowListFragment;
 import com.google.android.material.tabs.TabLayout;
 
 public class SpaceActivity extends AppCompatActivity {
@@ -20,6 +19,7 @@ public class SpaceActivity extends AppCompatActivity {
     // ... other fields ...
 
     private Fragment fragment;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,16 +41,16 @@ public class SpaceActivity extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new NewPostedFragment();
+                        fragment = new NewPostedFragment(1, username);
                         break;
                     case 1:
-                        fragment = new NewPostedFragment();
+                        fragment = new NewPostedFragment(2, username);
                         break;
                     case 2:
-                        fragment = new FollowingListFragment();
+                        fragment = new FollowListFragment(1, username);
                         break;
                     case 3:
-                        fragment = new FollowerListFragment();
+                        fragment = new FollowListFragment(2, username);
                         break;
                     default:
                         throw new IllegalStateException("Unexpected position: " + tab.getPosition());

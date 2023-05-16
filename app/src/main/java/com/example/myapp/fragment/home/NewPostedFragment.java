@@ -51,6 +51,21 @@ public class NewPostedFragment extends Fragment implements PostListAdapter.PostD
         // Required empty public constructor
     }
 
+    public NewPostedFragment(int state, String username) {
+        // State 0 or else: default
+        // State 1: self
+        // State 2: favorite
+        switch(state){
+            case 1:
+                getSelfPostList(username);
+                break;
+            case 2:
+                getFavoriteList(username);
+                break;
+            default: break;
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,5 +120,12 @@ public class NewPostedFragment extends Fragment implements PostListAdapter.PostD
     public void onCreatePost() {
         Intent intent = new Intent(getActivity(), NewPostActivity.class);
         newPostLauncher.launch(intent);
+    }
+
+    public void getSelfPostList(String username) {
+        return;
+    }
+    public void getFavoriteList(String username) {
+        return;
     }
 }
