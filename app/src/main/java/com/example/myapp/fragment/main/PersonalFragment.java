@@ -19,6 +19,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 import com.example.myapp.R;
+import com.example.myapp.activity.EditProfileActivity;
 import com.example.myapp.activity.LoginActivity;
 import com.example.myapp.activity.MainActivity;
 import com.example.myapp.activity.SpaceActivity;
@@ -27,6 +28,7 @@ import com.example.myapp.connection.TokenManager;
 import java.io.IOException;
 
 public class PersonalFragment extends Fragment {
+    Button editProfileButton;
     Button personalSpaceButton;
     Button loginButton;
     Button logoutButton;
@@ -49,7 +51,7 @@ public class PersonalFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_personal, container, false);
 
-        usernameView = view.findViewById(R.id.usernameView);
+        usernameView = view.findViewById(R.id.user_name);
 
         personalSpaceButton = view.findViewById(R.id.personalSpaceButton);
         personalSpaceButton.setOnClickListener(v -> {
@@ -109,6 +111,11 @@ public class PersonalFragment extends Fragment {
             });
         }
 
+        editProfileButton = view.findViewById(R.id.editProfileButton);
+        editProfileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), EditProfileActivity.class);
+            startActivity(intent);
+        });
         return view;
     }
 }
