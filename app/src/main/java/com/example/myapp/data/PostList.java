@@ -57,6 +57,10 @@ public class PostList implements Parcelable {
         return list.size();
     }
 
+    public void clear() {
+        list.clear();
+    }
+
     @Override
     public String toString() {
         return String.format("<PostList of length %d>", list.size());

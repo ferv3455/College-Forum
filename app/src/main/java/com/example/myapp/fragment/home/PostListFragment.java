@@ -48,11 +48,7 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
         new ActivityResultContracts.StartActivityForResult(),
         result -> {
             if (result.getResultCode() == MainActivity.RESULT_OK) {
-                Intent data = result.getData();
-                Post post = data.getParcelableExtra(NewPostActivity.NEW_POST);
-                postList.insert(0, post);
-                adapter.notifyItemInserted(0);
-                recyclerView.smoothScrollToPosition(0);
+                updatePostList();
             }
         }
     );
@@ -81,30 +77,7 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
         }
         else {
             postList = new PostList();
-            ContentManager.getPostList(sortBy, new Callback() {
-                @Override
-                public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    e.printStackTrace();
-                }
-
-                @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    try (ResponseBody responseBody = response.body()) {
-                        if (!response.isSuccessful()) {
-                            throw new IOException("Unexpected code " + response);
-                        }
-
-                        assert responseBody != null;
-                        JSONArray result = new JSONArray(responseBody.string());
-                        postList.update(result);
-                        if (adapter != null) {
-                            getActivity().runOnUiThread(() -> adapter.notifyItemInserted(0));
-                        }
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
+            updatePostList();
         }
     }
 
@@ -139,5 +112,33 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
     public void onCreatePost() {
         Intent intent = new Intent(getActivity(), NewPostActivity.class);
         newPostLauncher.launch(intent);
+    }
+
+    public void updatePostList() {
+        postList.clear();
+        ContentManager.getPostList(sortBy, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    assert responseBody != null;
+                    JSONArray result = new JSONArray(responseBody.string());
+                    postList.update(result);
+                    if (adapter != null) {
+                        getActivity().runOnUiThread(() -> adapter.notifyItemInserted(0));
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 }
