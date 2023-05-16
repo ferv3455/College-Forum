@@ -4,13 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.example.myapp.fragment.home.FollowedFragment;
-import com.example.myapp.fragment.home.HotFragment;
-import com.example.myapp.fragment.home.NewPostedFragment;
-import com.example.myapp.fragment.home.NewRepliedFragment;
+import com.example.myapp.fragment.home.PostListFragment;
 
 public class PostsPagerAdapter extends FragmentStateAdapter {
     public static String[] tabTitles = {"新发表", "新回复", "热门", "关注"};
+    public static String[] sortBy = {"time", "time", "hot", "following"};
 
     public PostsPagerAdapter(Fragment fragment) {
         super(fragment);
@@ -20,16 +18,7 @@ public class PostsPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         // Return a NEW fragment instance in createFragment(int)
-        switch (position) {
-            case 0:
-                return new NewPostedFragment();
-            case 1:
-                return new NewRepliedFragment();
-            case 2:
-                return new HotFragment();
-            default:
-                return new FollowedFragment();
-        }
+        return PostListFragment.newInstance(sortBy[position]);
     }
 
     @Override

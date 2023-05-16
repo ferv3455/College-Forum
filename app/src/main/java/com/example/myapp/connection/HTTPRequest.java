@@ -2,7 +2,10 @@ package com.example.myapp.connection;
 
 import android.util.Log;
 
+import java.util.Map;
+
 import okhttp3.Callback;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -27,6 +30,30 @@ public class HTTPRequest {
         }
         client.newCall(request).enqueue(callback);
         Log.d("HTTP", "attempting to send a GET request");
+    }
+
+    public static void getWithParams(String url, Map<String, String> params, String token, Callback callback) {
+        HttpUrl.Builder httpBuilder = HttpUrl.parse(BASE_URL + url).newBuilder();
+        if (params != null) {
+            for(Map.Entry<String, String> param : params.entrySet()) {
+                httpBuilder.addQueryParameter(param.getKey(),param.getValue());
+            }
+        }
+
+        Request request;
+        if (token != null) {
+            request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .addHeader("Authorization", String.format("Token %s", token))
+                    .build();
+        }
+        else {
+            request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .build();
+        }
+        client.newCall(request).enqueue(callback);
+        Log.d("HTTP", "attempting to send a GET request with params");
     }
 
     public static void post(String url, String json, String token, Callback callback) {
