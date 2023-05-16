@@ -6,15 +6,15 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Post implements Parcelable {
-//    private static String[] testImage = {
-//            Uri.parse("android.resource://com.example.myapp/" + R.drawable.rainbow),
-//            Uri.parse("android.resource://com.example.myapp/" + R.drawable.snow),
-//    };
-
+    private final String id;
     private final String intro;
     private final String content;
     private final String username;
@@ -26,6 +26,7 @@ public class Post implements Parcelable {
     private int stars;
 
     public Post(String intro, String content, String username, String tag) {
+        this.id = "";
         this.intro = intro;
         this.content = content;
         this.username = username;
@@ -42,6 +43,7 @@ public class Post implements Parcelable {
     }
 
     public Post(String intro, String content, String[] images, String username, String tag) {
+        this.id = "";
         this.intro = intro;
         this.content = content;
         this.username = username;
@@ -54,6 +56,7 @@ public class Post implements Parcelable {
     }
 
     public Post(Parcel in) {
+        this.id = in.readString();
         this.intro = in.readString();
         this.content = in.readString();
         this.username = in.readString();
@@ -63,6 +66,33 @@ public class Post implements Parcelable {
         this.comments = in.readInt();
         this.likes = in.readInt();
         this.stars = in.readInt();
+    }
+
+    public Post(JSONObject obj, boolean full) {
+        try {
+            this.id = obj.getString("id");
+            this.intro = obj.getString("title");
+            this.content = obj.getString("content");
+            this.username = obj.getJSONObject("user").getString("username");
+            this.tag = obj.getJSONArray("tags").getJSONObject(0).getString("name");
+            this.createdAt = obj.getString("createdAt");
+            this.comments = obj.getInt("comments");
+            this.likes = obj.getInt("likes");
+            this.stars = obj.getInt("favorites");
+
+            JSONArray image_list = obj.getJSONArray("images");
+            int size = image_list.length();
+            this.images = new String[size];
+            for (int i = 0; i < size; i++) {
+                this.images[i] = image_list.getJSONObject(i).getString(full ? "content" : "thumbnail");
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getIntro() {
@@ -120,6 +150,7 @@ public class Post implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeString(id);
         parcel.writeString(intro);
         parcel.writeString(content);
         parcel.writeString(username);

@@ -19,53 +19,65 @@ import com.example.myapp.activity.MainActivity;
 import com.example.myapp.activity.NewPostActivity;
 import com.example.myapp.adapter.PostListAdapter;
 import com.example.myapp.R;
+import com.example.myapp.connection.ContentManager;
 import com.example.myapp.data.Post;
 import com.example.myapp.data.PostList;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.UUID;
+import org.json.JSONArray;
+import org.json.JSONException;
 
-public class NewPostedFragment extends Fragment implements PostListAdapter.PostDetailEventListener {
+import java.io.IOException;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+
+public class PostListFragment extends Fragment implements PostListAdapter.PostDetailEventListener {
+    private static final String ARG_SORT_BY = "SORT_BY";
     private final static String STATE_POSTS = "STATE_POSTS";
     private PostList postList = null;
+    private String sortBy = "time";
     private RecyclerView recyclerView;
     private FloatingActionButton addButton;
-    private PostListAdapter adapter;
+    private PostListAdapter adapter = null;
     private View view;
 
     private final ActivityResultLauncher<Intent> newPostLauncher = registerForActivityResult(
         new ActivityResultContracts.StartActivityForResult(),
         result -> {
             if (result.getResultCode() == MainActivity.RESULT_OK) {
-                Intent data = result.getData();
-                Post post = data.getParcelableExtra(NewPostActivity.NEW_POST);
-                postList.insert(0, post);
-                adapter.notifyItemInserted(0);
-                recyclerView.smoothScrollToPosition(0);
+                updatePostList();
             }
         }
     );
 
-    public NewPostedFragment() {
+    public PostListFragment() {
         // Required empty public constructor
+    }
+
+    public static PostListFragment newInstance(String sortBy) {
+        PostListFragment fragment = new PostListFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_SORT_BY, sortBy);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            sortBy = getArguments().getString(ARG_SORT_BY);
+        }
+
         if (savedInstanceState != null) {
             postList = savedInstanceState.getParcelable(STATE_POSTS);
         }
         else {
-            String[] titles = {"Hello there!", "Hi!", "Hello!", "Greetings!", "Thanks!"};
-            String[] contents = {"first post", "second post", "third post", "forth post", "fifth post"};
             postList = new PostList();
-            for (int i = 0; i < 5; i++) {
-                postList.insert(new Post(titles[i], contents[i],
-                        UUID.randomUUID().toString().substring(0, 6),
-                        UUID.randomUUID().toString().substring(0, 4)));
-            }
+            updatePostList();
         }
     }
 
@@ -93,17 +105,40 @@ public class NewPostedFragment extends Fragment implements PostListAdapter.PostD
     public void onDisplayPostDetail(int data) {
         Post post = postList.get(data);
         Intent intent = new Intent(getActivity(), DetailActivity.class);
-        intent.putExtra("username", post.getUsername());
-        intent.putExtra("datetime", post.getCreatedAt());
-        intent.putExtra("tag", post.getTag());
-        intent.putExtra("title", post.getIntro());
-        intent.putExtra("content", post.getContent());
-        intent.putExtra("images", post.getImages());
+        intent.putExtra("id", post.getId());
         startActivity(intent);
     }
 
     public void onCreatePost() {
         Intent intent = new Intent(getActivity(), NewPostActivity.class);
         newPostLauncher.launch(intent);
+    }
+
+    public void updatePostList() {
+        postList.clear();
+        ContentManager.getPostList(sortBy, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    assert responseBody != null;
+                    JSONArray result = new JSONArray(responseBody.string());
+                    postList.update(result);
+                    if (adapter != null) {
+                        getActivity().runOnUiThread(() -> adapter.notifyItemInserted(0));
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 }

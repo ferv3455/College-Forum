@@ -9,8 +9,8 @@
         android:id="@+id/follower_avatar"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:src="@drawable/avatar"
         />
-    <!-- android:src="@drawable/ic_default_avatar" -->
 
     <TextView
         android:id="@+id/follower_name"

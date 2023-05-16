@@ -5,6 +5,10 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class PostList implements Parcelable {
@@ -16,6 +20,17 @@ public class PostList implements Parcelable {
 
     private PostList(Parcel in) {
         list = in.createTypedArrayList(Post.CREATOR);
+    }
+
+    public void update(JSONArray array) {
+        list.clear();
+        try {
+            for (int i = 0; i < array.length(); i++) {
+                list.add(new Post(array.getJSONObject(i), false));
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void insert(Post post) {
@@ -40,6 +55,10 @@ public class PostList implements Parcelable {
 
     public int size() {
         return list.size();
+    }
+
+    public void clear() {
+        list.clear();
     }
 
     @Override
