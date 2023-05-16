@@ -6,22 +6,47 @@
     android:layout_height="match_parent"
     tools:context=".fragment.main.PersonalFragment">
 
-    <TextView
-        android:id="@+id/usernameView"
+    <LinearLayout
+        android:id="@+id/user_info_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/user_avatar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/avatar" />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Username"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/editProfileButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/personalSpaceButton"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Edit Profile"
+        app:layout_constraintTop_toBottomOf="@+id/user_info_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <Button
         android:id="@+id/personalSpaceButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Space"
-        app:layout_constraintTop_toBottomOf="@+id/usernameView"
+        app:layout_constraintTop_toBottomOf="@+id/editProfileButton"
         app:layout_constraintBottom_toTopOf="@+id/loginButtonFrame"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>

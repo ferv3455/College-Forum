@@ -35,6 +35,11 @@
             android:label="@string/space_name"
             android:parentActivityName=".activity.MainActivity" />
         <activity
+            android:name=".activity.EditProfileActivity"
+            android:exported="false"
+            android:label="编辑资料"
+            android:parentActivityName=".activity.MainActivity" />
+        <activity
             android:name=".activity.NewPostActivity"
             android:exported="false"
             android:label="@string/new_post_name"
