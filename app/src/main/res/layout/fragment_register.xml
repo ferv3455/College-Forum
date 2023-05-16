@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".fragment.login.RegisterFragment">
 
+    <ImageView
+        android:id="@+id/registerimage"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/register"
+        android:layout_marginTop="40dp"
+        app:layout_constraintBottom_toTopOf="@+id/usernameRegisterEdit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
     <EditText
         android:id="@+id/usernameRegisterEdit"
         android:layout_width="wrap_content"
@@ -16,7 +27,7 @@
         app:layout_constraintBottom_toTopOf="@+id/passwordRegisterEdit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/registerimage" />
 
     <EditText
         android:id="@+id/passwordRegisterEdit"

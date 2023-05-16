@@ -5,7 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragment.login.LoginFragment">
-
+    <ImageView
+        android:id="@+id/loginimage"
+        android:src="@drawable/login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/usernameLoginEdit"
+        android:layout_marginTop="40dp"
+        android:layout_height="150dp"
+        android:layout_width="150dp" />
     <EditText
         android:id="@+id/usernameLoginEdit"
         android:layout_width="wrap_content"
@@ -16,7 +25,7 @@
         app:layout_constraintBottom_toTopOf="@+id/passwordLoginEdit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/loginimage" />
 
     <EditText
         android:id="@+id/passwordLoginEdit"

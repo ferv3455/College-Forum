@@ -27,7 +27,7 @@ class ChatViewHolder extends RecyclerView.ViewHolder {
     public ChatViewHolder(@NonNull View itemView, ChatHistoryAdapter adapter) {
         super(itemView);
         this.adapter = adapter;
-        textView = itemView.findViewById(R.id.messageBubble);
+        textView = itemView.findViewById(R.id.message_item);
     }
 }
 

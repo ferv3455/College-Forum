@@ -3,45 +3,43 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:id="@+id/message_item"
+    android:id="@+id/reply_item"
     android:padding="5dp">
 
     <ImageView
-        android:id="@+id/message_item_image"
+        android:id="@+id/reply_item_image"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:src="@drawable/avatar"/>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
-                android:id="@+id/message_item_usn"
+                android:id="@+id/reply_item_usn"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="usn"
-                android:textSize="25dp"
+                android:text="other's username"
                 android:layout_marginLeft="10dp"/>
             <TextView
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:text="11:45"
-                android:gravity="right"
-                />
+                android:layout_width="wrap_content"
+                android:text="回复了我的评论"
+                android:layout_marginLeft="30dp"/>
         </LinearLayout>
-
         <TextView
-            android:id="@+id/message_item_relpy"
+            android:id="@+id/reply_item_relpy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:text="你说得对，但是原神是一款由米哈游自主研发的开放世界"
             android:layout_marginLeft="10dp"
-            android:ellipsize="end"
             android:gravity="center_vertical"
+            android:textSize="15dp"
             android:maxLines="1"
-            android:text="你说得对，但是原神是一款由米哈游自主研发的开放世界" />
+            android:ellipsize="end"/>
     </LinearLayout>
 </LinearLayout>
