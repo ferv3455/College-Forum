@@ -12,17 +12,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
-import com.example.myapp.chat_for_temporary;
-import com.example.myapp.data.messages;
+import com.example.myapp.activity.ChatActivity;
+import com.example.myapp.data.ChatSession;
 
 import java.util.List;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
 
-    private List<messages> messages;
+    private List<ChatSession> messages;
     private final LayoutInflater inflater;
 
-    public MessageAdapter(Context context, List<messages> messages) {
+    public MessageAdapter(Context context, List<ChatSession> messages) {
         this.inflater = LayoutInflater.from(context);
         this.messages = messages;
     }
@@ -32,15 +32,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
         // Inflate the item layout and create the ViewHolder
         View view = inflater.inflate(R.layout.message_item, parent, false);
         final MessageViewHolder holder = new MessageViewHolder(view, this);
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int h = holder.getAdapterPosition();
-                com.example.myapp.data.messages m = messages.get(h);
-                Context context = view.getContext();
-                Intent intent = new Intent(context, chat_for_temporary.class);
-                context.startActivity(intent);
-            }
+        holder.itemView.setOnClickListener(v -> {
+            int h = holder.getAdapterPosition();
+            ChatSession m = messages.get(h);
+            Context context = view.getContext();
+            Intent intent = new Intent(context, ChatActivity.class);
+            intent.putExtra("username", "tester");
+            context.startActivity(intent);
         });
         return holder;
     }

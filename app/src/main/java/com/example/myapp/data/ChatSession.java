@@ -1,14 +1,14 @@
 package com.example.myapp.data;
 
-public class replies {
-    private int image;
-    private String usn;
-    private String reply;
+public class ChatSession {
+    int image;
+    String usn;
+    String message;
 
-    public replies(int image, String usn, String reply) {
+    public ChatSession(int image, String usn, String messages) {
         this.image = image;
         this.usn = usn;
-        this.reply = reply;
+        this.message = message;
     }
 
     public int getImage() {
@@ -27,11 +27,11 @@ public class replies {
         this.usn = usn;
     }
 
-    public String getReply() {
-        return reply;
+    public String getMessage() {
+        return message;
     }
 
-    public void setReply(String reply) {
-        this.reply = reply;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

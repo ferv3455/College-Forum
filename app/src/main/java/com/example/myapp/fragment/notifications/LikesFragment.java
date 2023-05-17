@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 
 import com.example.myapp.R;
 import com.example.myapp.adapter.LikesAdapter;
-import com.example.myapp.data.likes;
+import com.example.myapp.data.Like;
 
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class LikesFragment extends Fragment {
 
-    private final List<likes> likesList = new ArrayList<>();
+    private final List<Like> likesList = new ArrayList<>();
     private RecyclerView recyclerView;
     private LikesAdapter adapter;
 
@@ -36,7 +36,7 @@ public class LikesFragment extends Fragment {
         Context context = getContext();
         View view = inflater.inflate(R.layout.fragment_notifications_likes, container, false);
         for (int i=0; i<5; i++) {
-            likesList.add(new likes(R.drawable.avatar,"byt"));
+            likesList.add(new Like(R.drawable.avatar,"byt"));
         }
         recyclerView = view.findViewById(R.id.like_recycle);
         adapter = new LikesAdapter(context,likesList);

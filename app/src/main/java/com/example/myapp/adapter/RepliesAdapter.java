@@ -12,18 +12,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
-import com.example.myapp.data.replies;
-import com.example.myapp.detail_for_tempory;
+import com.example.myapp.activity.DetailActivity;
+import com.example.myapp.data.Reply;
 
 
 import java.util.List;
 
 public class RepliesAdapter extends RecyclerView.Adapter<RepliesViewHolder> {
 
-    private List<com.example.myapp.data.replies> repliesList;
+    private List<Reply> repliesList;
     private final LayoutInflater inflater;
 
-    public RepliesAdapter(Context context, List<replies> repliesList) {
+    public RepliesAdapter(Context context, List<Reply> repliesList) {
         this.inflater = LayoutInflater.from(context);
         this.repliesList = repliesList;
     }
@@ -33,15 +33,13 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesViewHolder> {
         // Inflate the item layout and create the ViewHolder
         View view = inflater.inflate(R.layout.reply_item, parent, false);
         final RepliesViewHolder holder = new RepliesViewHolder(view, this);
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int h = holder.getAdapterPosition();
-                replies m = repliesList.get(h);
-                Context context = view.getContext();
-                Intent intent = new Intent(context, detail_for_tempory.class);
-                context.startActivity(intent);
-            }
+        holder.itemView.setOnClickListener(v -> {
+            int h = holder.getAdapterPosition();
+            Reply m = repliesList.get(h);
+            Context context = view.getContext();
+            Intent intent = new Intent(context, DetailActivity.class);
+            intent.putExtra("id", "83542071-a3e1-42f4-a76f-daf3f748300a");
+            context.startActivity(intent);
         });
         return holder;
     }

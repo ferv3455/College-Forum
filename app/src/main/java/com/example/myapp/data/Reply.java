@@ -1,12 +1,14 @@
 package com.example.myapp.data;
 
-public class likes {
-    int image;
-    String usn;
+public class Reply {
+    private int image;
+    private String usn;
+    private String reply;
 
-    public likes(int image, String usn) {
+    public Reply(int image, String usn, String reply) {
         this.image = image;
         this.usn = usn;
+        this.reply = reply;
     }
 
     public int getImage() {
@@ -23,5 +25,13 @@ public class likes {
 
     public void setUsn(String usn) {
         this.usn = usn;
+    }
+
+    public String getReply() {
+        return reply;
+    }
+
+    public void setReply(String reply) {
+        this.reply = reply;
     }
 }

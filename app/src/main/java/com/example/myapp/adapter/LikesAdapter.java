@@ -12,18 +12,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
-import com.example.myapp.data.likes;
-import com.example.myapp.detail_for_tempory;
-
+import com.example.myapp.activity.DetailActivity;
+import com.example.myapp.data.Like;
 
 import java.util.List;
 
 public class LikesAdapter extends RecyclerView.Adapter<LikesViewHolder> {
 
-    private List<com.example.myapp.data.likes> likesList;
+    private List<Like> likesList;
     private final LayoutInflater inflater;
 
-    public LikesAdapter(Context context, List<likes> likesList) {
+    public LikesAdapter(Context context, List<Like> likesList) {
         this.inflater = LayoutInflater.from(context);
         this.likesList = likesList;
     }
@@ -33,15 +32,13 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesViewHolder> {
         // Inflate the item layout and create the ViewHolder
         View view = inflater.inflate(R.layout.like_item, parent, false);
         final LikesViewHolder holder = new LikesViewHolder(view, this);
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int h = holder.getAdapterPosition();
-                likes m = likesList.get(h);
-                Context context = view.getContext();
-                Intent intent = new Intent(context, detail_for_tempory.class);
-                context.startActivity(intent);
-            }
+        holder.itemView.setOnClickListener(v -> {
+            int h = holder.getAdapterPosition();
+            Like m = likesList.get(h);
+            Context context = view.getContext();
+            Intent intent = new Intent(context, DetailActivity.class);
+            intent.putExtra("id", "83542071-a3e1-42f4-a76f-daf3f748300a");
+            context.startActivity(intent);
         });
         return holder;
     }

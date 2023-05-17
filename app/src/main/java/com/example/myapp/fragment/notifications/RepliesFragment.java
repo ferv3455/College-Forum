@@ -13,14 +13,14 @@ import android.view.ViewGroup;
 
 import com.example.myapp.R;
 import com.example.myapp.adapter.RepliesAdapter;
-import com.example.myapp.data.replies;
+import com.example.myapp.data.Reply;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RepliesFragment extends Fragment {
 
-    private final List<replies> repliesList = new ArrayList<>();
+    private final List<Reply> repliesList = new ArrayList<>();
     private RecyclerView recyclerView;
     private RepliesAdapter adapter;
 
@@ -35,7 +35,7 @@ public class RepliesFragment extends Fragment {
         Context context = getContext();
         View view = inflater.inflate(R.layout.fragment_notifications_replies, container, false);
         for (int i=0; i<5; i++) {
-            repliesList.add(new replies(R.drawable.avatar,"byt", "你说的对但原神是一款"));
+            repliesList.add(new Reply(R.drawable.avatar,"byt", "你说的对但原神是一款"));
         }
         recyclerView = view.findViewById(R.id.reply_recycle);
         adapter = new RepliesAdapter(context,repliesList);

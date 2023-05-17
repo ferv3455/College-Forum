@@ -27,7 +27,7 @@ class ChatViewHolder extends RecyclerView.ViewHolder {
     public ChatViewHolder(@NonNull View itemView, ChatHistoryAdapter adapter) {
         super(itemView);
         this.adapter = adapter;
-        textView = itemView.findViewById(R.id.message_item);
+        textView = itemView.findViewById(R.id.messageBubble);
     }
 }
 
@@ -53,7 +53,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     @Override
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate an item view
-        View mItemView = inflater.inflate(R.layout.message_item, parent, false);
+        View mItemView = inflater.inflate(R.layout.bubble_item, parent, false);
         return new ChatViewHolder(mItemView, this);
     }
 

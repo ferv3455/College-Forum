@@ -1,4 +1,4 @@
-package com.example.myapp.data;
+package com.example.myapp.customview;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,11 +11,11 @@ import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 
-public class CircleImageview extends ImageView{
+public class CircleImageview extends AppCompatImageView{
     //画笔
     private Paint mPaint;
     //圆形图片的半径

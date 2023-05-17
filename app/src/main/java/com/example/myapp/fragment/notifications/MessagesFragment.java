@@ -13,15 +13,14 @@ import android.view.ViewGroup;
 
 import com.example.myapp.R;
 import com.example.myapp.adapter.MessageAdapter;
-import com.example.myapp.data.messages;
+import com.example.myapp.data.ChatSession;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MessagesFragment extends Fragment {
 
-    private final List<messages> messages = new ArrayList<>();
+    private final List<ChatSession> messages = new ArrayList<>();
     private RecyclerView recyclerView;
     private MessageAdapter adapter;
 
@@ -36,7 +35,7 @@ public class MessagesFragment extends Fragment {
         Context context = getContext();
         View view = inflater.inflate(R.layout.fragment_notifications_messages, container, false);
         for (int i=0; i<5; i++) {
-            messages.add(new messages(R.drawable.avatar,"JJY", "你说的对但原神是一款"));
+            messages.add(new ChatSession(R.drawable.avatar,"JJY", "你说的对但原神是一款"));
         }
         recyclerView = view.findViewById(R.id.message_recycle);
         adapter = new MessageAdapter(context,messages);
