@@ -1,9 +1,13 @@
 package com.example.myapp.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,14 +18,18 @@ import com.example.myapp.data.Follow;
 import com.example.myapp.data.FollowList;
 
 class FollowViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public final ImageView avatarView;
     public final TextView usernameView;
+    public final TextView descriptionView;
     private final FollowListAdapter adapter;
 
     public FollowViewHolder(@NonNull View itemView, FollowListAdapter adapter) {
         super(itemView);
         this.adapter = adapter;
         itemView.setOnClickListener(this);
+        avatarView = itemView.findViewById(R.id.follower_avatar);
         usernameView = itemView.findViewById(R.id.follower_name);
+        descriptionView = itemView.findViewById(R.id.follower_description);
     }
 
     @Override
@@ -59,7 +67,11 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
     public void onBindViewHolder(@NonNull FollowViewHolder holder, int position) {
         Follow follow = followList.get(position);
         // Update other views in the holder based on the Follow object
+        byte[] decodedString = Base64.decode(follow.getAvatar(), Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        holder.avatarView.setImageBitmap(decodedByte);
         holder.usernameView.setText(follow.getFollowerName());
+        holder.descriptionView.setText(follow.getDescription());
     }
 
     @Override
@@ -70,7 +82,6 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
     public void showFollowDetail(int index) {
         listener.onDisplayFollowDetail(index);
     }
-
 
 }
 

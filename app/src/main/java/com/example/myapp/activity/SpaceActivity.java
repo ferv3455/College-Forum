@@ -105,10 +105,10 @@ public class SpaceActivity extends AppCompatActivity {
                         fragment = PostListFragment.newInstance("time");
                         break;
                     case 2:
-                        fragment = new FollowListFragment(1, currentUsername);
+                        fragment = new FollowListFragment(1, currentUsername, currentToken);
                         break;
                     case 3:
-                        fragment = new FollowListFragment(2, currentUsername);
+                        fragment = new FollowListFragment(2, currentUsername, currentToken);
                         break;
                     default:
                         throw new IllegalStateException("Unexpected position: " + tab.getPosition());
