@@ -1,6 +1,7 @@
 package com.example.myapp.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
+import com.example.myapp.activity.SpaceActivity;
 import com.example.myapp.data.Follow;
 import com.example.myapp.data.FollowList;
 
@@ -35,7 +37,8 @@ class FollowViewHolder extends RecyclerView.ViewHolder implements View.OnClickLi
     @Override
     public void onClick(View view) {
         int position = this.getAdapterPosition();
-        adapter.showFollowDetail(position);
+        String objectUsername = adapter.getUsernameAt(position);
+        adapter.showFollowDetail(objectUsername);
     }
 }
 public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
@@ -45,7 +48,7 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
     private final FollowDetailEventListener listener;
 
     public interface FollowDetailEventListener {
-        void onDisplayFollowDetail(int data);
+        void onDisplayFollowDetail(String username);
     }
 
     public FollowListAdapter(Context context, FollowList followList, FollowDetailEventListener listener) {
@@ -79,10 +82,13 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
         return followList.size();
     }
 
-    public void showFollowDetail(int index) {
-        listener.onDisplayFollowDetail(index);
+    public String getUsernameAt(int index) {
+        return followList.get(index).getFollowerName();
     }
 
+    public void showFollowDetail(String username) {
+        listener.onDisplayFollowDetail(username);
+    }
 }
 
 

@@ -47,9 +47,13 @@ public class SpaceActivity extends AppCompatActivity {
         TextView userName = findViewById(R.id.user_name);
         TextView userDescription = findViewById(R.id.user_description);  // assuming you have this in your layout
 
-        // Set user avatar and name
-        currentToken = TokenManager.getSavedToken(this);
-        currentUsername = TokenManager.getSavedUsername(this);
+        Intent intent = getIntent();
+        if (intent.hasExtra("username")) {
+            currentUsername = intent.getStringExtra("username");
+        } else {
+            currentToken = TokenManager.getSavedToken(this);
+            currentUsername = TokenManager.getSavedUsername(this);
+        }
 
         HTTPRequest.get("account/profile/" + currentUsername, currentToken, new Callback() {
                     @Override

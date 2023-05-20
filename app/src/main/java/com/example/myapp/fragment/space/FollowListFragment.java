@@ -1,5 +1,6 @@
 package com.example.myapp.fragment.space;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
+import com.example.myapp.activity.SpaceActivity;
 import com.example.myapp.adapter.FollowListAdapter;
 import com.example.myapp.connection.HTTPRequest;
 import com.example.myapp.data.Follow;
@@ -29,7 +31,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class FollowListFragment extends Fragment {
+public class FollowListFragment extends Fragment implements FollowListAdapter.FollowDetailEventListener{
 
     private RecyclerView recyclerView;
     private FollowListAdapter followListAdapter;
@@ -90,11 +92,8 @@ public class FollowListFragment extends Fragment {
         });
         // Replace this with actual call to API
 
-        followListAdapter = new FollowListAdapter(getContext(), followList, position -> {
-            // handle follow item click
-        });
+        followListAdapter = new FollowListAdapter(getContext(), followList,this);
         recyclerView.setAdapter(followListAdapter);
-
         return view;
     }
 
@@ -110,6 +109,16 @@ public class FollowListFragment extends Fragment {
         else {
             // Handle other states
         }
+    }
+
+    @Override
+    public void onDisplayFollowDetail(String username) {
+        // 创建 Intent 并将用户名作为额外数据
+        Intent intent = new Intent(getActivity(), SpaceActivity.class);
+        intent.putExtra("username", username);
+
+        // 启动 SpaceActivity
+        startActivity(intent);
     }
 }
 
