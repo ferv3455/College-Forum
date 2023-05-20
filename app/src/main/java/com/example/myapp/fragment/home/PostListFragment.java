@@ -115,7 +115,6 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
     }
 
     public void updatePostList() {
-        postList.clear();
         ContentManager.getPostList(sortBy, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -131,9 +130,10 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
 
                     assert responseBody != null;
                     JSONArray result = new JSONArray(responseBody.string());
+                    postList.clear();
                     postList.update(result);
                     if (adapter != null) {
-                        getActivity().runOnUiThread(() -> adapter.notifyItemInserted(0));
+                        getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
                     }
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
