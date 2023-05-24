@@ -36,6 +36,7 @@ import okhttp3.ResponseBody;
 
 public class PostListFragment extends Fragment implements PostListAdapter.PostDetailEventListener {
     private static final String ARG_SORT_BY = "SORT_BY";
+    private static final String ARG_STATE = "STATE";
     private final static String STATE_POSTS = "STATE_POSTS";
     private PostList postList = null;
     private String sortBy = "time";
@@ -43,6 +44,7 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
     private FloatingActionButton addButton;
     private PostListAdapter adapter = null;
     private View view;
+    private int state = 0;
 
     private final ActivityResultLauncher<Intent> newPostLauncher = registerForActivityResult(
         new ActivityResultContracts.StartActivityForResult(),
@@ -57,10 +59,12 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
         // Required empty public constructor
     }
 
-    public static PostListFragment newInstance(String sortBy) {
+    public static PostListFragment newInstance(String sortBy, int state) {
+        // State for getting postList(default, self, favorite)
         PostListFragment fragment = new PostListFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SORT_BY, sortBy);
+        args.putInt(ARG_STATE, state);
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,6 +74,7 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             sortBy = getArguments().getString(ARG_SORT_BY);
+            state = getArguments().getInt(ARG_STATE);
         }
 
         if (savedInstanceState != null) {
@@ -115,30 +120,40 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
     }
 
     public void updatePostList() {
-        ContentManager.getPostList(sortBy, new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-            }
+        if (state == 0) {
+            ContentManager.getPostList(sortBy, new PostListCallback());
+        }
+        else if(state == 1) {
+            ContentManager.getMyPosts(sortBy, new PostListCallback());
+        }
+        else if(state == 2) {
+            ContentManager.getMyFavorites(sortBy, new PostListCallback());
+        }
+    }
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful()) {
-                        throw new IOException("Unexpected code " + response);
-                    }
+    private class PostListCallback implements Callback {
+        @Override
+        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            e.printStackTrace();
+        }
 
-                    assert responseBody != null;
-                    JSONArray result = new JSONArray(responseBody.string());
-                    postList.clear();
-                    postList.update(result);
-                    if (adapter != null) {
-                        getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+        @Override
+        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+            try (ResponseBody responseBody = response.body()) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
                 }
+
+                assert responseBody != null;
+                JSONArray result = new JSONArray(responseBody.string());
+                postList.clear();
+                postList.update(result);
+                if (adapter != null) {
+                    getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             }
-        });
+        }
     }
 }
