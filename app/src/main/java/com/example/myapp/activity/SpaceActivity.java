@@ -95,7 +95,7 @@ public class SpaceActivity extends AppCompatActivity {
                     }
                 });
 
-        fragment = PostListFragment.newInstance("time");
+        fragment = PostListFragment.newInstance("time", 1);
 
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -103,10 +103,10 @@ public class SpaceActivity extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = PostListFragment.newInstance("time");
+                        fragment = PostListFragment.newInstance("time", 1);
                         break;
                     case 1:
-                        fragment = PostListFragment.newInstance("time");
+                        fragment = PostListFragment.newInstance("time", 2);
                         break;
                     case 2:
                         fragment = new FollowListFragment(1, currentUsername, currentToken);

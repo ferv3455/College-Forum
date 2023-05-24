@@ -10,12 +10,14 @@ public class Follow implements Parcelable {
     private final int id;
     private final String avatar;
     private final String description;
+    private boolean isFollowed;
 
-    public Follow(int id, String followerName, String avatar, String description) {
+    public Follow(int id, String followerName, String avatar, String description, boolean isFollowed) {  // 新增参数
         this.id = id;
         this.followerName = followerName;
         this.avatar = avatar;
         this.description = description;
+        this.isFollowed = isFollowed;
     }
 
     public Follow(Parcel in) {
@@ -23,6 +25,7 @@ public class Follow implements Parcelable {
         this.followerName = in.readString();
         this.avatar = in.readString();
         this.description = in.readString();
+        this.isFollowed = in.readByte() != 0;
     }
 
     public int getId() {
@@ -41,6 +44,14 @@ public class Follow implements Parcelable {
         return description;
     }
 
+    public boolean isFollowed() {
+        return isFollowed;
+    }
+
+    public void setFollowed(boolean followed) {
+        isFollowed = followed;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -52,6 +63,7 @@ public class Follow implements Parcelable {
         parcel.writeString(followerName);
         parcel.writeString(avatar);
         parcel.writeString(description);
+        parcel.writeByte((byte) (isFollowed ? 1 : 0));
     }
 
     public static Creator<Follow> CREATOR = new Creator<Follow>() {

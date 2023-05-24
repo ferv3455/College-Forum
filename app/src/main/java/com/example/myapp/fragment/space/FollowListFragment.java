@@ -72,22 +72,31 @@ public class FollowListFragment extends Fragment implements FollowListAdapter.Fo
                     String responseBody = response.body().string();
                     try {
                         JSONObject jsonObject = new JSONObject(responseBody);
-                        JSONArray followingArray = jsonObject.getJSONArray("following");
+                        JSONArray followArray = new JSONArray();
                         FollowList followList = new FollowList();
-                        for (int i = 0; i < followingArray.length(); i++) {
-                            JSONObject followObj = followingArray.getJSONObject(i);
+                        if(state == 1){
+                            followArray = jsonObject.getJSONArray("following");
+                        }else if(state == 2){
+                            followArray = jsonObject.getJSONArray("followed");
+                        }else{
+                            // handle other states if needed
+                        }
+                        for (int i = 0; i < followArray.length(); i++) {
+                            JSONObject followObj = followArray.getJSONObject(i);
                             int tempId = followObj.getJSONObject("user").getInt("id");
-                            String followerName = followObj.getJSONObject("user").getString("username");
+                            String followName = followObj.getJSONObject("user").getString("username");
                             String avatar = followObj.getString("avatar");
                             String description = followObj.getString("description");
-                            Follow follow = new Follow(tempId, followerName, avatar, description);
+                            boolean isFollowed = followObj.getBoolean("is_followed");  // 假设 "is_followed" 是你的 API 返回的 JSON 数据中表示关注状态的字段
+                            Follow follow = new Follow(tempId, followName, avatar, description, isFollowed);
                             followList.insert(follow);
                         }
-                        // Now followList contains the list of people the user is following
+                        // Now followList contains the list of people the user is following or followed depending on the state
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
+
             }
         });
         // Replace this with actual call to API
@@ -103,7 +112,7 @@ public class FollowListFragment extends Fragment implements FollowListAdapter.Fo
             HTTPRequest.get("account/following/" + currentUsername, currentToken, callback);
         }
         else if(state == 2){
-            // Get Follower List
+            // Get Followed List
             HTTPRequest.get("account/followed/" + currentUsername, currentToken, callback);
         }
         else {

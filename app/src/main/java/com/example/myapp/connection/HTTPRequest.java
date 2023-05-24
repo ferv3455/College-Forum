@@ -75,4 +75,45 @@ public class HTTPRequest {
         client.newCall(request).enqueue(callback);
         Log.d("HTTP", "attempting to send a POST request");
     }
+
+    public static void put(String url, String json, String token, Callback callback) {
+        RequestBody body = RequestBody.create(json, JSON);
+        Request request;
+        if (token != null) {
+            request = new Request.Builder()
+                    .url(BASE_URL + url)
+                    .put(body)
+                    .addHeader("Authorization", String.format("Token %s", token))
+                    .build();
+        }
+        else {
+            request = new Request.Builder()
+                    .url(BASE_URL + url)
+                    .put(body)
+                    .build();
+        }
+        client.newCall(request).enqueue(callback);
+        Log.d("HTTP", "attempting to send a PUT request");
+    }
+
+    public static void delete(String url, String json, String token, Callback callback) {
+        RequestBody body = RequestBody.create(json, JSON);
+        Request request;
+        if (token != null) {
+            request = new Request.Builder()
+                    .url(BASE_URL + url)
+                    .delete(body)
+                    .addHeader("Authorization", String.format("Token %s", token))
+                    .build();
+        }
+        else {
+            request = new Request.Builder()
+                    .url(BASE_URL + url)
+                    .delete(body)
+                    .build();
+        }
+        client.newCall(request).enqueue(callback);
+        Log.d("HTTP", "attempting to send a DELETE request");
+    }
+
 }
