@@ -17,6 +17,7 @@ public class Post implements Parcelable {
     private final String id;
     private final String intro;
     private final String content;
+    private final String avatar;
     private final String username;
     private final String tag;
     private final String[] images;
@@ -29,6 +30,7 @@ public class Post implements Parcelable {
         this.id = "";
         this.intro = intro;
         this.content = content;
+        this.avatar = "";
         this.username = username;
         this.tag = tag;
         this.createdAt = new SimpleDateFormat("MM-dd HH:mm").format(new Date());
@@ -46,6 +48,7 @@ public class Post implements Parcelable {
         this.id = "";
         this.intro = intro;
         this.content = content;
+        this.avatar = "";
         this.username = username;
         this.tag = tag;
         this.createdAt = new SimpleDateFormat("MM-dd HH:mm").format(new Date());
@@ -59,6 +62,7 @@ public class Post implements Parcelable {
         this.id = in.readString();
         this.intro = in.readString();
         this.content = in.readString();
+        this.avatar = in.readString();
         this.username = in.readString();
         this.tag = in.readString();
         this.images = in.createStringArray();
@@ -73,7 +77,8 @@ public class Post implements Parcelable {
             this.id = obj.getString("id");
             this.intro = obj.getString("title");
             this.content = obj.getString("content");
-            this.username = obj.getJSONObject("user").getString("username");
+            this.avatar = obj.getJSONObject("user_profile").getString("avatar");
+            this.username = obj.getJSONObject("user_profile").getJSONObject("user").getString("username");
             this.tag = obj.getJSONArray("tags").getJSONObject(0).getString("name");
             this.createdAt = obj.getString("createdAt");
             this.comments = obj.getInt("comments");
@@ -101,6 +106,10 @@ public class Post implements Parcelable {
 
     public String getContent() {
         return content;
+    }
+
+    public String getAvatar() {
+        return avatar;
     }
 
     public String getUsername() {
@@ -153,6 +162,7 @@ public class Post implements Parcelable {
         parcel.writeString(id);
         parcel.writeString(intro);
         parcel.writeString(content);
+        parcel.writeString(avatar);
         parcel.writeString(username);
         parcel.writeString(tag);
         parcel.writeStringArray(images);
