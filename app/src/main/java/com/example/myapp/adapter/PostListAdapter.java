@@ -1,14 +1,10 @@
 package com.example.myapp.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,7 +15,6 @@ import com.example.myapp.data.Post;
 import com.example.myapp.data.PostList;
 
 class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-    public final ImageView avatarView;
     public final TextView usernameView;
     public final TextView datetimeView;
     public final TextView tagView;
@@ -35,7 +30,6 @@ class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
         super(itemView);
         this.adapter = adapter;
         itemView.setOnClickListener(this);
-        avatarView = itemView.findViewById(R.id.avatar);
         usernameView = itemView.findViewById(R.id.username);
         datetimeView = itemView.findViewById(R.id.datetime);
         tagView = itemView.findViewById(R.id.tag);
@@ -83,6 +77,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = postList.get(position);
+        holder.titleView.setText(post.getIntro());
         holder.usernameView.setText(post.getUsername());
         holder.datetimeView.setText(post.getCreatedAt());
         holder.tagView.setText(post.getTag());
@@ -91,10 +86,6 @@ public class PostListAdapter extends RecyclerView.Adapter<PostViewHolder> {
         holder.commentsView.setText(Integer.toString(post.getComments()));
         holder.likesView.setText(Integer.toString(post.getLikes()));
         holder.starsView.setText(Integer.toString(post.getStars()));
-
-        byte[] decodedString = Base64.decode(post.getAvatar(), Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        holder.avatarView.setImageBitmap(decodedByte);
 
         GridViewAdapter adapter = new GridViewAdapter(context, post.getImages());
         holder.imagesView.setAdapter(adapter);

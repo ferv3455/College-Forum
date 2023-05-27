@@ -4,12 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.myapp.R;
@@ -29,7 +25,7 @@ import okhttp3.ResponseBody;
 
 public class DetailActivity extends AppCompatActivity {
     private Post post = null;
-    private ImageView avatarView;
+
     private TextView usernameView;
     private TextView datetimeView;
     private TextView tagView;
@@ -40,6 +36,15 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_detail);
+
+        usernameView = findViewById(R.id.username);
+        datetimeView = findViewById(R.id.datetime);
+        tagView = findViewById(R.id.tag);
+        titleView = findViewById(R.id.postTitle);
+        contentView = findViewById(R.id.postContent);
+        imagesView = findViewById(R.id.imagesGridView);
+        imagesView.setVerticalScrollBarEnabled(false);
 
         Intent intent = getIntent();
         String id = intent.getStringExtra("id");
@@ -63,27 +68,11 @@ public class DetailActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
                 runOnUiThread(() -> {
-                    setContentView(R.layout.activity_detail);
-
-                    avatarView = findViewById(R.id.avatar);
-                    usernameView = findViewById(R.id.username);
-                    datetimeView = findViewById(R.id.datetime);
-                    tagView = findViewById(R.id.tag);
-                    titleView = findViewById(R.id.postTitle);
-                    contentView = findViewById(R.id.postContent);
-                    imagesView = findViewById(R.id.imagesGridView);
-                    imagesView.setVerticalScrollBarEnabled(false);
-
                     usernameView.setText(post.getUsername());
                     datetimeView.setText(post.getCreatedAt());
                     tagView.setText(post.getTag());
                     titleView.setText(post.getIntro());
                     contentView.setText(post.getContent());
-
-                    byte[] decodedString = Base64.decode(post.getAvatar(), Base64.DEFAULT);
-                    Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                    avatarView.setImageBitmap(decodedByte);
-
                     GridViewAdapter adapter = new GridViewAdapter(imagesView.getContext(), post.getImages());
                     imagesView.setAdapter(adapter);
                 });
