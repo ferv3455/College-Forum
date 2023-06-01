@@ -35,6 +35,8 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesViewHolder> {
         holder.itemView.setOnClickListener(v -> {
             int h = holder.getAdapterPosition();
             Like m = likesList.get(h);
+            String usn= m.getUsn();
+
             Context context = view.getContext();
             Intent intent = new Intent(context, DetailActivity.class);
             intent.putExtra("id", "83542071-a3e1-42f4-a76f-daf3f748300a");
