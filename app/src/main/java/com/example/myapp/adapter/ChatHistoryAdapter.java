@@ -98,10 +98,14 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             return IS_OTHERS_MESSAGE;
         }
     }
-
-    public  void  addMessage(Message message) {
+    public void scrollToBottom(RecyclerView recyclerView) {
+        int position = msgList.size() - 1;
+        recyclerView.scrollToPosition(position);
+    }
+    public  void  addMessage(Message message, RecyclerView recyclerView) {
         msgList.add(message);
         notifyDataSetChanged();
+        scrollToBottom(recyclerView);
     }
     public void setOtherUsername(String usn) {
         this.otherUsername = usn;

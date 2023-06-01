@@ -18,7 +18,8 @@
             android:name=".activity.ChatActivity"
             android:exported="false"
             android:label="@string/chat_name"
-            android:parentActivityName=".activity.MainActivity" />
+            android:parentActivityName=".activity.MainActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".activity.LoginActivity"
             android:exported="false"

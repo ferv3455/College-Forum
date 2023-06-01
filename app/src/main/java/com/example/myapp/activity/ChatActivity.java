@@ -65,6 +65,19 @@ public class ChatActivity extends AppCompatActivity {
         adapter = new ChatHistoryAdapter(this, msgList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (bottom < oldBottom) {
+                    recyclerView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
+                        }
+                    }, 100);
+                }
+            }
+        });
         String otherUsn = intent.getStringExtra("username");
         titleView.setText(otherUsn);
         adapter.setOtherUsername(otherUsn);
@@ -142,7 +155,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String messageText = myInputMessage.getText().toString();
                 Message newMessage = new Message(messageText,false);
-                adapter.addMessage(newMessage);
+                adapter.addMessage(newMessage,recyclerView);
                 myInputMessage.setText("");
             }
         });

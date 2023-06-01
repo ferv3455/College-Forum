@@ -21,5 +21,5 @@
         android:text="Hello, this is the other person's message."
         android:textSize="15dp"
         android:maxWidth="250dp"
-        android:background="@color/lightblue"/>
+        android:background="@drawable/other_bubble_bg"/>
 </LinearLayout>
