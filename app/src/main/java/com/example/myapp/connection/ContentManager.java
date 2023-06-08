@@ -64,6 +64,9 @@ public class ContentManager {
         if (username != null) {
             username = "/" + username;
         }
+        else {
+            username = "";
+        }
 
         HTTPRequest.get("account/favorites" + username, TokenManager.getSavedToken(context), new Callback() {
             @Override
