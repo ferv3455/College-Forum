@@ -25,6 +25,7 @@ public class Post implements Parcelable {
     private int comments;
     private int likes;
     private int stars;
+    private boolean isStarred;
 
     public Post(String intro, String content, String username, String tag) {
         this.id = "";
@@ -84,6 +85,7 @@ public class Post implements Parcelable {
             this.comments = obj.getInt("comments");
             this.likes = obj.getInt("likes");
             this.stars = obj.getInt("favorites");
+            this.isStarred = obj.getBoolean("isStarred");
 
             JSONArray image_list = obj.getJSONArray("images");
             int size = image_list.length();
@@ -140,6 +142,8 @@ public class Post implements Parcelable {
         return stars;
     }
 
+    public boolean getIsStarred() { return this.isStarred; }
+
     public void setComments(int comments) {
         this.comments = comments;
     }
@@ -151,6 +155,8 @@ public class Post implements Parcelable {
     public void setStars(int stars) {
         this.stars = stars;
     }
+
+    public void setIsStarred(boolean isStarred) { this.isStarred = isStarred; }
 
     @Override
     public int describeContents() {
