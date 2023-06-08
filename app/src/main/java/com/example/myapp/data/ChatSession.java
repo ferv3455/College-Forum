@@ -5,7 +5,7 @@ public class ChatSession {
     String usn;
     String message;
 
-    public ChatSession(int image, String usn, String messages) {
+    public ChatSession(int image, String usn, String message) {
         this.image = image;
         this.usn = usn;
         this.message = message;

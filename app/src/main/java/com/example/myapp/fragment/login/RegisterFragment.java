@@ -1,7 +1,9 @@
 package com.example.myapp.fragment.login;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -47,6 +49,12 @@ public class RegisterFragment extends Fragment {
 
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MY_APP", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("username", usernameEdit.getText().toString());
+                        editor.putString("password", passwordEdit.getText().toString());
+                        editor.apply();
+
                         Intent replyIntent = new Intent();
                         getActivity().setResult(Activity.RESULT_OK, replyIntent);
                         getActivity().finish();

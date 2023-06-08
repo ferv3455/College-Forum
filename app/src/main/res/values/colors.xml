@@ -12,4 +12,7 @@
     <color name="light_green">#FFb8bb26</color>
     <color name="light_gray">#66888888</color>
     <color name="background">#FFF6F6F6</color>
+    <color name="lightblue">#87CEEB</color>
+    <color name="green">#00FF00</color>
+
 </resources>
