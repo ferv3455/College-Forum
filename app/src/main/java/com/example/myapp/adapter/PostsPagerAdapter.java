@@ -18,7 +18,7 @@ public class PostsPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         // Return a NEW fragment instance in createFragment(int)
-        return PostListFragment.newInstance(sortBy[position]);
+        return PostListFragment.newInstance(sortBy[position], 0);
     }
 
     @Override

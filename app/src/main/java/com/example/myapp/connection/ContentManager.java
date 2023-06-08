@@ -15,10 +15,10 @@ import java.util.Map;
 import okhttp3.*;
 
 public class ContentManager {
-    public static void getPostList(String sortBy, Callback callback) {
+    public static void getPostList(String sortBy, Context context, Callback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("sortBy", sortBy);
-        HTTPRequest.getWithParams("forum/posts/", params, null, new Callback() {
+        HTTPRequest.getWithParams("forum/posts/", params, TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 if (callback != null){
@@ -36,10 +36,13 @@ public class ContentManager {
         });
     }
 
-    public static void getMyPosts(String sortBy, Callback callback) {
+    public static void getUserPosts(String username, Context context, Callback callback) {
+        if (username == null) {
+            username = TokenManager.getSavedUsername(context);
+        }
         HashMap<String, String> params = new HashMap<>();
-        params.put("sortBy", sortBy);
-        HTTPRequest.getWithParams("account/my_posts/", params, null, new Callback() {
+        params.put("user", username);
+        HTTPRequest.getWithParams("forum/posts/", params, TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 if (callback != null){
@@ -49,7 +52,7 @@ public class ContentManager {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                Log.d("MyPostList", "retrieve my post list");
+                Log.d("UserPostList", "retrieve user's post list");
                 if (callback != null) {
                     callback.onResponse(call, response);
                 }
@@ -57,10 +60,12 @@ public class ContentManager {
         });
     }
 
-    public static void getMyFavorites(String sortBy, Callback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("sortBy", sortBy);
-        HTTPRequest.getWithParams("account/my_favorites/", params, null, new Callback() {
+    public static void getUserFavorites(String username, Context context, Callback callback) {
+        if (username != null) {
+            username = "/" + username;
+        }
+
+        HTTPRequest.get("account/favorites" + username, TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 if (callback != null){
@@ -70,7 +75,7 @@ public class ContentManager {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                Log.d("MyFavorites", "retrieve my favorites list");
+                Log.d("UserFavorites", "retrieve user's favorites list");
                 if (callback != null) {
                     callback.onResponse(call, response);
                 }
@@ -79,7 +84,7 @@ public class ContentManager {
     }
 
 
-    public static void getPostDetail(Context context, String id, Callback callback) {
+    public static void getPostDetail(String id, Context context, Callback callback) {
         HTTPRequest.get(String.format("forum/posts/%s", id), TokenManager.getSavedToken(context),
                 new Callback() {
             @Override

@@ -43,7 +43,7 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String id = intent.getStringExtra("id");
-        ContentManager.getPostDetail(this, id, new Callback() {
+        ContentManager.getPostDetail(id, this, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();

@@ -121,13 +121,13 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
 
     public void updatePostList() {
         if (state == 0) {
-            ContentManager.getPostList(sortBy, new PostListCallback());
+            ContentManager.getPostList(sortBy, getActivity(), new PostListCallback());
         }
         else if(state == 1) {
-            ContentManager.getMyPosts(sortBy, new PostListCallback());
+            ContentManager.getUserPosts(null, getActivity(), new PostListCallback());
         }
         else if(state == 2) {
-            ContentManager.getMyFavorites(sortBy, new PostListCallback());
+            ContentManager.getUserFavorites(null, getActivity(), new PostListCallback());
         }
     }
 
