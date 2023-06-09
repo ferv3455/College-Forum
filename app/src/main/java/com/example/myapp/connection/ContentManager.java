@@ -86,6 +86,27 @@ public class ContentManager {
         });
     }
 
+    public static void searchPostList(String queryString, String sortBy, Context context, Callback callback) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("query", queryString);
+        params.put("sortBy", sortBy);
+        HTTPRequest.getWithParams("forum/posts/", params, TokenManager.getSavedToken(context), new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                if (callback != null){
+                    callback.onFailure(call, e);
+                }
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                Log.d("PostList", "retrieve post list");
+                if (callback != null) {
+                    callback.onResponse(call, response);
+                }
+            }
+        });
+    }
 
     public static void getPostDetail(String id, Context context, Callback callback) {
         HTTPRequest.get(String.format("forum/posts/%s", id), TokenManager.getSavedToken(context),

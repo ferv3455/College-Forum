@@ -192,9 +192,12 @@ public class PostListAdapter extends RecyclerView.Adapter<PostViewHolder> {
         }
         else if (tags.length == 1) {
             holder.tag1View.setVisibility(View.GONE);
+            holder.tag2View.setVisibility(View.VISIBLE);
             holder.tag2View.setText(tags[0]);
         }
         else {
+            holder.tag1View.setVisibility(View.VISIBLE);
+            holder.tag2View.setVisibility(View.VISIBLE);
             holder.tag1View.setText(tags[0]);
             holder.tag2View.setText(tags[1]);
         }

@@ -48,6 +48,7 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
                 (tab, position) -> tab.setText(PostsPagerAdapter.tabTitles[position])
         ).attach();
         searchbar = view.findViewById(R.id.searchbar);
+        searchbar.setSubmitButtonEnabled(true);
         searchbar.setOnQueryTextListener(this);
         return view;
     }
