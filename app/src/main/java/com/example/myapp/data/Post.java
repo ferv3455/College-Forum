@@ -1,6 +1,5 @@
 package com.example.myapp.data;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -26,6 +25,7 @@ public class Post implements Parcelable {
     private int comments;
     private int likes;
     private int stars;
+    private boolean isLiked;
     private boolean isStarred;
 
     public Post(String intro, String content, String username, String[] tags) {
@@ -45,6 +45,8 @@ public class Post implements Parcelable {
         this.comments = (int)(Math.random() * 1000);
         this.likes = (int)(Math.random() * 1000);
         this.stars = (int)(Math.random() * 1000);
+        this.isLiked = false;
+        this.isStarred = false;
     }
 
     public Post(String intro, String content, String[] images, String username, String[] tags) {
@@ -60,6 +62,8 @@ public class Post implements Parcelable {
         this.comments = (int)(Math.random() * 1000);
         this.likes = (int)(Math.random() * 1000);
         this.stars = (int)(Math.random() * 1000);
+        this.isLiked = false;
+        this.isStarred = false;
     }
 
     public Post(Parcel in) {
@@ -75,6 +79,8 @@ public class Post implements Parcelable {
         this.comments = in.readInt();
         this.likes = in.readInt();
         this.stars = in.readInt();
+        this.isLiked = in.readInt() > 0;
+        this.isStarred = in.readInt() > 0;
     }
 
     public Post(JSONObject obj, boolean full) {
@@ -88,6 +94,7 @@ public class Post implements Parcelable {
             this.comments = obj.getInt("comments");
             this.likes = obj.getInt("likes");
             this.stars = obj.getInt("favorites");
+            this.isLiked = obj.getBoolean("isLiked");
             this.isStarred = obj.getBoolean("isStarred");
 
             if (obj.isNull("location")) {
@@ -163,6 +170,10 @@ public class Post implements Parcelable {
         return stars;
     }
 
+    public boolean getIsLiked() {
+        return this.isLiked;
+    }
+
     public boolean getIsStarred() {
         return this.isStarred;
     }
@@ -177,6 +188,10 @@ public class Post implements Parcelable {
 
     public void setStars(int stars) {
         this.stars = stars;
+    }
+
+    public void setIsLiked(boolean isLiked) {
+        this.isLiked = isLiked;
     }
 
     public void setIsStarred(boolean isStarred) {
@@ -202,6 +217,8 @@ public class Post implements Parcelable {
         parcel.writeInt(comments);
         parcel.writeInt(likes);
         parcel.writeInt(stars);
+        parcel.writeInt(isLiked ? 1 : 0);
+        parcel.writeInt(isStarred ? 1 : 0);
     }
 
     public static Creator<Post> CREATOR = new Creator<Post>() {

@@ -1,18 +1,21 @@
 package com.example.myapp.adapter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
@@ -30,6 +33,7 @@ import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
     public final ImageView avatarView;
@@ -43,6 +47,11 @@ class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
     public final TextView commentsView;
     public final TextView likesView;
     public final TextView starsView;
+    public final ImageView likesImage;
+    public final ImageView starsImage;
+    public final LinearLayout likesLayout;
+    public final LinearLayout starsLayout;
+    public boolean isLiked;
     public boolean isStarred;
     private final PostListAdapter adapter;
     private final Context context;
@@ -64,8 +73,20 @@ class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
         commentsView = itemView.findViewById(R.id.commentView);
         likesView = itemView.findViewById(R.id.likeView);
         starsView = itemView.findViewById(R.id.starView);
+        likesImage = itemView.findViewById(R.id.likeImage);
+        starsImage = itemView.findViewById(R.id.starImage);
+        likesLayout = itemView.findViewById(R.id.likeLayout);
+        starsLayout = itemView.findViewById(R.id.starLayout);
 
-        starsView.setOnClickListener(v -> {
+        likesLayout.setOnClickListener(v -> {
+            if (isLiked) {
+                sendUnlikeRequest();
+            } else {
+                sendLikeRequest();
+            }
+        });
+
+        starsLayout.setOnClickListener(v -> {
             if (isStarred) {
                 sendUnstarRequest();
             } else {
@@ -97,11 +118,19 @@ class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
         HTTPRequest.put("account/favorites", jsonParams.toString(), TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                // 处理回应...
-                // 如果成功，那么应该设置 isStarred 为 true，然后更新 starsView 的文字颜色（或其他的标记）
-                isStarred = true;
-                currentPost.setIsStarred(true);
-                starsView.setTextColor(Color.BLUE);
+                try (ResponseBody ignored = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    isStarred = true;
+                    currentPost.setIsStarred(true);
+                    currentPost.setStars(currentPost.getStars() + 1);
+                    ((AppCompatActivity) context).runOnUiThread(() -> {
+                        starsView.setText(Integer.toString(currentPost.getStars()));
+                        updateStarsLayout();
+                    });
+                }
             }
 
             @Override
@@ -127,11 +156,19 @@ class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
         HTTPRequest.delete("account/favorites", jsonParams.toString(), TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                // 处理回应...
-                // 如果成功，那么应该设置 isStarred 为 false，然后更新 starsView 的文字颜色（或其他的标记）
-                isStarred = false;
-                currentPost.setIsStarred(false);
-                starsView.setTextColor(Color.BLACK);
+                try (ResponseBody ignored = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    isStarred = false;
+                    currentPost.setIsStarred(false);
+                    currentPost.setStars(currentPost.getStars() - 1);
+                    ((AppCompatActivity) context).runOnUiThread(() -> {
+                        starsView.setText(Integer.toString(currentPost.getStars()));
+                        updateStarsLayout();
+                    });
+                }
             }
 
             @Override
@@ -140,6 +177,83 @@ class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
         });
     }
 
+    private void sendLikeRequest() {
+        int position = this.getAdapterPosition();
+        Post currentPost = adapter.getPostList().get(position);
+        String url = String.format("forum/like/%s", currentPost.getId());
+
+        HTTPRequest.post(url, "{}", TokenManager.getSavedToken(context), new Callback() {
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody ignored = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    isLiked = true;
+                    currentPost.setIsLiked(true);
+                    currentPost.setLikes(currentPost.getLikes() + 1);
+                    ((AppCompatActivity) context).runOnUiThread(() -> {
+                        likesView.setText(Integer.toString(currentPost.getLikes()));
+                        updateLikesLayout();
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            }
+        });
+    }
+
+    private void sendUnlikeRequest() {
+        int position = this.getAdapterPosition();
+        Post currentPost = adapter.getPostList().get(position);
+        String url = String.format("forum/like/%s", currentPost.getId());
+
+        HTTPRequest.delete(url, "{}", TokenManager.getSavedToken(context), new Callback() {
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody ignored = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    isLiked = false;
+                    currentPost.setIsLiked(false);
+                    currentPost.setLikes(currentPost.getLikes() - 1);
+                    ((AppCompatActivity) context).runOnUiThread(() -> {
+                        likesView.setText(Integer.toString(currentPost.getLikes()));
+                        updateLikesLayout();
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            }
+        });
+    }
+
+    public void updateLikesLayout() {
+        if (isLiked) {
+            likesImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.purple_500)));
+            likesView.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.purple_500)));
+        } else {
+            likesImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.gray)));
+            likesView.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.gray)));
+        }
+    }
+
+    public void updateStarsLayout() {
+        if (isStarred) {
+            starsImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.purple_500)));
+            starsView.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.purple_500)));
+        } else {
+            starsImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.gray)));
+            starsView.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.gray)));
+        }
+    }
 }
 
 public class PostListAdapter extends RecyclerView.Adapter<PostViewHolder> {
@@ -170,12 +284,10 @@ public class PostListAdapter extends RecyclerView.Adapter<PostViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = postList.get(position);
+        holder.isLiked = post.getIsLiked();
         holder.isStarred = post.getIsStarred();
-        if (holder.isStarred) {
-            holder.starsView.setTextColor(Color.BLUE); // 这只是个例子，你可以根据你的 UI 设计来设置
-        } else {
-            holder.starsView.setTextColor(Color.BLACK); // 这只是个例子，你可以根据你的 UI 设计来设置
-        }
+        holder.updateLikesLayout();
+        holder.updateStarsLayout();
 
         holder.usernameView.setText(post.getUsername());
         holder.datetimeView.setText(post.getCreatedAt());

@@ -138,40 +138,14 @@
         app:layout_constraintTop_toBottomOf="@id/imagesGridView">
 
         <LinearLayout
-            android:id="@+id/commentLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/likeLayout"
-            app:layout_constraintTop_toTopOf="parent"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/commentImage"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_weight="1"
-                android:layout_margin="5dp"
-                app:tint="@color/gray"
-                android:src="@drawable/comment"
-                android:layout_gravity="center_vertical" />
-
-            <TextView
-                android:id="@+id/commentView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="TextView"
-                android:layout_gravity="center_vertical" />
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/likeLayout"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            app:layout_constraintStart_toEndOf="@+id/commentLayout"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/starLayout"
             app:layout_constraintTop_toTopOf="parent"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
             android:orientation="horizontal">
 
             <ImageView
@@ -197,9 +171,11 @@
             android:id="@+id/starLayout"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/likeLayout"
+            app:layout_constraintStart_toEndOf="@id/likeLayout"
+            app:layout_constraintEnd_toStartOf="@id/commentLayout"
             app:layout_constraintTop_toTopOf="parent"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
             android:orientation="horizontal">
 
             <ImageView
@@ -214,6 +190,36 @@
 
             <TextView
                 android:id="@+id/starView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="TextView"
+                android:layout_gravity="center_vertical" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/commentLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toEndOf="@id/starLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/commentImage"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                app:tint="@color/gray"
+                android:src="@drawable/comment"
+                android:layout_gravity="center_vertical" />
+
+            <TextView
+                android:id="@+id/commentView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
