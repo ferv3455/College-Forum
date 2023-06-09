@@ -19,41 +19,44 @@ public class Post implements Parcelable {
     private final String content;
     private final String avatar;
     private final String username;
-    private final String tag;
+    private final String[] tags;
     private final String[] images;
     private final String createdAt;
+    private final String location;
     private int comments;
     private int likes;
     private int stars;
     private boolean isStarred;
 
-    public Post(String intro, String content, String username, String tag) {
+    public Post(String intro, String content, String username, String[] tags) {
         this.id = "";
         this.intro = intro;
         this.content = content;
         this.avatar = "";
         this.username = username;
-        this.tag = tag;
+        this.tags = tags;
         this.createdAt = new SimpleDateFormat("MM-dd HH:mm").format(new Date());
 //        this.images = new String[(int)(Math.random() * 9)];
 //        for (int i = 0; i < images.length; i++) {
 //            images[i] = testImage[(int)(Math.random() * 2)];
 //        }
         this.images = new String[0];
+        this.location = null;
         this.comments = (int)(Math.random() * 1000);
         this.likes = (int)(Math.random() * 1000);
         this.stars = (int)(Math.random() * 1000);
     }
 
-    public Post(String intro, String content, String[] images, String username, String tag) {
+    public Post(String intro, String content, String[] images, String username, String[] tags) {
         this.id = "";
         this.intro = intro;
         this.content = content;
         this.avatar = "";
         this.username = username;
-        this.tag = tag;
+        this.tags = tags;
         this.createdAt = new SimpleDateFormat("MM-dd HH:mm").format(new Date());
         this.images = images;
+        this.location = null;
         this.comments = (int)(Math.random() * 1000);
         this.likes = (int)(Math.random() * 1000);
         this.stars = (int)(Math.random() * 1000);
@@ -65,9 +68,10 @@ public class Post implements Parcelable {
         this.content = in.readString();
         this.avatar = in.readString();
         this.username = in.readString();
-        this.tag = in.readString();
+        this.tags = in.createStringArray();
         this.images = in.createStringArray();
         this.createdAt = in.readString();
+        this.location = in.readString();
         this.comments = in.readInt();
         this.likes = in.readInt();
         this.stars = in.readInt();
@@ -80,18 +84,31 @@ public class Post implements Parcelable {
             this.content = obj.getString("content");
             this.avatar = obj.getJSONObject("user_profile").getString("avatar");
             this.username = obj.getJSONObject("user_profile").getJSONObject("user").getString("username");
-            this.tag = obj.getJSONArray("tags").getJSONObject(0).getString("name");
             this.createdAt = obj.getString("createdAt");
             this.comments = obj.getInt("comments");
             this.likes = obj.getInt("likes");
             this.stars = obj.getInt("favorites");
             this.isStarred = obj.getBoolean("isStarred");
 
+            if (obj.isNull("location")) {
+                this.location = null;
+            }
+            else {
+                this.location = obj.getString("location");
+            }
+
             JSONArray image_list = obj.getJSONArray("images");
             int size = image_list.length();
             this.images = new String[size];
             for (int i = 0; i < size; i++) {
                 this.images[i] = image_list.getJSONObject(i).getString(full ? "content" : "thumbnail");
+            }
+
+            JSONArray tags_list = obj.getJSONArray("tags");
+            int t_size = tags_list.length();
+            this.tags = new String[t_size];
+            for (int i = 0; i < t_size; i++) {
+                this.tags[i] = tags_list.getJSONObject(i).getString("name");
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -118,8 +135,8 @@ public class Post implements Parcelable {
         return username;
     }
 
-    public String getTag() {
-        return tag;
+    public String[] getTags() {
+        return tags;
     }
 
     public String[] getImages() {
@@ -128,6 +145,10 @@ public class Post implements Parcelable {
 
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    public String getLocation() {
+        return location;
     }
 
     public int getComments() {
@@ -142,7 +163,9 @@ public class Post implements Parcelable {
         return stars;
     }
 
-    public boolean getIsStarred() { return this.isStarred; }
+    public boolean getIsStarred() {
+        return this.isStarred;
+    }
 
     public void setComments(int comments) {
         this.comments = comments;
@@ -156,7 +179,9 @@ public class Post implements Parcelable {
         this.stars = stars;
     }
 
-    public void setIsStarred(boolean isStarred) { this.isStarred = isStarred; }
+    public void setIsStarred(boolean isStarred) {
+        this.isStarred = isStarred;
+    }
 
     @Override
     public int describeContents() {
@@ -170,9 +195,10 @@ public class Post implements Parcelable {
         parcel.writeString(content);
         parcel.writeString(avatar);
         parcel.writeString(username);
-        parcel.writeString(tag);
+        parcel.writeStringArray(tags);
         parcel.writeStringArray(images);
         parcel.writeString(createdAt);
+        parcel.writeString(location);
         parcel.writeInt(comments);
         parcel.writeInt(likes);
         parcel.writeInt(stars);

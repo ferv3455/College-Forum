@@ -18,7 +18,7 @@
     <string name="new_post_content">说些什么吧...</string>
     <string name="new_post_activity_title">发布帖子</string>
     <string name="select_location">添加位置信息</string>
-    <string name="select_tag">选择标签</string>
+    <string name="select_tag">输入标签，用空格分隔</string>
 
     <!-- 私聊界面 -->
     <string name="chat_activity_title">聊天 - 用户名</string>

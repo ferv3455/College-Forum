@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +41,7 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
     private final static String STATE_POSTS = "STATE_POSTS";
     private PostList postList = null;
     private String sortBy = "time";
+    private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
     private FloatingActionButton addButton;
     private PostListAdapter adapter = null;
@@ -91,12 +93,17 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_home_new_posted, container, false);
+
+        refreshLayout = view.findViewById(R.id.swipeRefresh);
+        refreshLayout.setOnRefreshListener(this::updatePostList);
+
         adapter = new PostListAdapter(getContext(), postList, this);
         recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         addButton = view.findViewById(R.id.addButton);
         addButton.setOnClickListener(view -> onCreatePost());
+
         return view;
     }
 
@@ -141,6 +148,8 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
         public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
             try (ResponseBody responseBody = response.body()) {
                 if (!response.isSuccessful()) {
+                    postList.clear();
+                    getActivity().runOnUiThread(() -> refreshLayout.setRefreshing(false));
                     throw new IOException("Unexpected code " + response);
                 }
 
@@ -149,7 +158,10 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
                 postList.clear();
                 postList.update(result);
                 if (adapter != null) {
-                    getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
+                    getActivity().runOnUiThread(() -> {
+                        adapter.notifyDataSetChanged();
+                        refreshLayout.setRefreshing(false);
+                    });
                 }
             } catch (JSONException e) {
                 throw new RuntimeException(e);

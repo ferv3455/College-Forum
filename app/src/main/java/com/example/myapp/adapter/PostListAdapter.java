@@ -35,7 +35,8 @@ class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
     public final ImageView avatarView;
     public final TextView usernameView;
     public final TextView datetimeView;
-    public final TextView tagView;
+    public final TextView tag1View;
+    public final TextView tag2View;
     public final TextView titleView;
     public final TextView contentView;
     public final GridView imagesView;
@@ -54,7 +55,8 @@ class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
         avatarView = itemView.findViewById(R.id.avatar);
         usernameView = itemView.findViewById(R.id.username);
         datetimeView = itemView.findViewById(R.id.datetime);
-        tagView = itemView.findViewById(R.id.tag);
+        tag1View = itemView.findViewById(R.id.tag1);
+        tag2View = itemView.findViewById(R.id.tag2);
         titleView = itemView.findViewById(R.id.postTitle);
         contentView = itemView.findViewById(R.id.postContent);
         imagesView = itemView.findViewById(R.id.imagesGridView);
@@ -177,12 +179,25 @@ public class PostListAdapter extends RecyclerView.Adapter<PostViewHolder> {
 
         holder.usernameView.setText(post.getUsername());
         holder.datetimeView.setText(post.getCreatedAt());
-        holder.tagView.setText(post.getTag());
         holder.titleView.setText(post.getIntro());
         holder.contentView.setText(post.getContent());
         holder.commentsView.setText(Integer.toString(post.getComments()));
         holder.likesView.setText(Integer.toString(post.getLikes()));
         holder.starsView.setText(Integer.toString(post.getStars()));
+
+        String[] tags = post.getTags();
+        if (tags.length == 0) {
+            holder.tag1View.setVisibility(View.GONE);
+            holder.tag2View.setVisibility(View.GONE);
+        }
+        else if (tags.length == 1) {
+            holder.tag1View.setVisibility(View.GONE);
+            holder.tag2View.setText(tags[0]);
+        }
+        else {
+            holder.tag1View.setText(tags[0]);
+            holder.tag2View.setText(tags[1]);
+        }
 
         byte[] decodedString = Base64.decode(post.getAvatar(), Base64.DEFAULT);
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);

@@ -8,8 +8,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.myapp.R;
@@ -32,10 +34,13 @@ public class DetailActivity extends AppCompatActivity {
     private ImageView avatarView;
     private TextView usernameView;
     private TextView datetimeView;
-    private TextView tagView;
+    private TextView tag1View;
+    private TextView tag2View;
     private TextView titleView;
     private TextView contentView;
     private GridView imagesView;
+    private LinearLayout locationLayout;
+    private TextView locationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,17 +73,41 @@ public class DetailActivity extends AppCompatActivity {
                     avatarView = findViewById(R.id.avatar);
                     usernameView = findViewById(R.id.username);
                     datetimeView = findViewById(R.id.datetime);
-                    tagView = findViewById(R.id.tag);
+                    tag1View = findViewById(R.id.tag1);
+                    tag2View = findViewById(R.id.tag2);
                     titleView = findViewById(R.id.postTitle);
                     contentView = findViewById(R.id.postContent);
                     imagesView = findViewById(R.id.imagesGridView);
+                    locationLayout = findViewById(R.id.locationLayout);
+                    locationView = findViewById(R.id.locationTextView);
+
                     imagesView.setVerticalScrollBarEnabled(false);
 
                     usernameView.setText(post.getUsername());
                     datetimeView.setText(post.getCreatedAt());
-                    tagView.setText(post.getTag());
                     titleView.setText(post.getIntro());
                     contentView.setText(post.getContent());
+
+                    if (post.getLocation() != null) {
+                        locationView.setText(post.getLocation());
+                    }
+                    else {
+                        locationLayout.setVisibility(View.GONE);
+                    }
+
+                    String[] tags = post.getTags();
+                    if (tags.length == 0) {
+                        tag1View.setVisibility(View.GONE);
+                        tag2View.setVisibility(View.GONE);
+                    }
+                    else if (tags.length == 1) {
+                        tag1View.setVisibility(View.GONE);
+                        tag2View.setText(tags[0]);
+                    }
+                    else {
+                        tag1View.setText(tags[0]);
+                        tag2View.setText(tags[1]);
+                    }
 
                     byte[] decodedString = Base64.decode(post.getAvatar(), Base64.DEFAULT);
                     Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);

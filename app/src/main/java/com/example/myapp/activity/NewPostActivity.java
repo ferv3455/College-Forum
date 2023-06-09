@@ -4,25 +4,35 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.myapp.R;
 import com.example.myapp.adapter.EditableGridViewAdapter;
 import com.example.myapp.connection.ContentManager;
 import com.example.myapp.data.Post;
 import com.example.myapp.utils.Base64Encoder;
+import com.example.myapp.utils.LocationFinder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +59,15 @@ public class NewPostActivity extends AppCompatActivity {
     private EditText titleEdit;
     private EditText contentEdit;
     private GridView imagesView;
+
+    private ImageView locationImage;
+    private TextView locationText;
+    private String location = null;
+    private LocationFinder locationFinder;
+
+    private ImageView tagImage;
+    private TextView tagEdit;
+
     private Button submitButton;
     private EditableGridViewAdapter adapter;
 
@@ -106,8 +125,29 @@ public class NewPostActivity extends AppCompatActivity {
         submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(this::submitPost);
 
-        findViewById(R.id.newLocationLayout).setOnClickListener(v -> Log.d("New Post", "Location"));
-        findViewById(R.id.newTagLayout).setOnClickListener(v -> Log.d("New Post", "Tag"));
+        locationImage = findViewById(R.id.locationImageView);
+        locationText = findViewById(R.id.locationTextView);
+        locationFinder = new LocationFinder(this);
+        findViewById(R.id.newLocationLayout).setOnClickListener(v -> {
+            if (location == null) {
+                if (locationFinder.isValid()) {
+                    location = locationFinder.getLocationMsg();
+                    locationText.setText(location);
+                    setLocationEnabled(true);
+                }
+                else {
+                    locationText.setText("请稍后重试！");
+                }
+            }
+            else {
+                location = null;
+                setLocationEnabled(false);
+            }
+        });
+
+        tagImage = findViewById(R.id.tagImageView);
+        tagEdit = findViewById(R.id.tagEditView);
+        tagEdit.addTextChangedListener(new TextWatcherWithContext(this));
 
         preferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
         titleEdit.setText(preferences.getString(TITLE, ""));
@@ -141,8 +181,11 @@ public class NewPostActivity extends AppCompatActivity {
             obj.put("content", contentEdit.getText().toString());
             JSONArray imageArray = new JSONArray(newImagesId.toArray(new String[newImagesId.size()]));
             obj.put("images", imageArray);
-            JSONArray tagArray = new JSONArray(new String[]{"Activity"});
+            JSONArray tagArray = new JSONArray(tagEdit.getText().toString().split(" "));
             obj.put("tags", tagArray);
+            if (location != null) {
+                obj.put("location", location);
+            }
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -175,6 +218,28 @@ public class NewPostActivity extends AppCompatActivity {
         });
     }
 
+    public void setLocationEnabled(boolean state) {
+        if (state) {
+            locationImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple_500)));
+            locationText.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple_500)));
+        }
+        else {
+            locationImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray)));
+            locationText.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray)));
+        }
+    }
+
+    public void setTagsEnabled(boolean state) {
+        if (state) {
+            tagImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple_500)));
+            tagEdit.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple_500)));
+        }
+        else {
+            tagImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray)));
+            tagEdit.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray)));
+        }
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -187,5 +252,26 @@ public class NewPostActivity extends AppCompatActivity {
             preferencesEditor.putString(String.format(INDEXED_IMAGE, i), newImagesThumbnail.get(i).toString());
         }
         preferencesEditor.apply();
+    }
+
+    class TextWatcherWithContext implements TextWatcher {
+        Context context;
+
+        TextWatcherWithContext(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            ((NewPostActivity) context).setTagsEnabled(charSequence.length() != 0);
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+        }
     }
 }

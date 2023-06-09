@@ -54,13 +54,29 @@
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
-            android:id="@+id/tag"
+            android:id="@+id/tag1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="TagName"
             android:textColor="@color/white"
             android:textSize="14sp"
             android:background="@drawable/rounded_tag"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tag2"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tag2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TagName"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:background="@drawable/rounded_tag"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
