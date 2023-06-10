@@ -2,6 +2,9 @@ package com.example.myapp.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapp.R;
 import com.example.myapp.activity.ChatActivity;
 import com.example.myapp.data.ChatSession;
+import com.example.myapp.data.Message;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
@@ -35,9 +42,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
         holder.itemView.setOnClickListener(v -> {
             int h = holder.getAdapterPosition();
             ChatSession m = messages.get(h);
+            List<Message> chatHistory = m.getChathistory();
+            String username = m.getUsn();
             Context context = view.getContext();
+
+            Bundle bundle = new Bundle();
+            Gson gson = new Gson();
+            String chatHistoryJson = gson.toJson(chatHistory);
+            bundle.putString("messageList", chatHistoryJson);
+            bundle.putString("username",username);
+
             Intent intent = new Intent(context, ChatActivity.class);
-            intent.putExtra("username", "tester");
+            intent.putExtras(bundle);
             context.startActivity(intent);
         });
         return holder;
@@ -45,10 +61,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        int image = messages.get(position).getImage();
+        String image = messages.get(position).getImage();
+        //Bitmap 解析
+        byte[] image1 = new byte[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            image1 = Base64.getDecoder().decode(image);
+        }
+        Bitmap image_bitmap = BitmapFactory.decodeByteArray(image1,0, image1.length);
         String usn = messages.get(position).getUsn();
         String reply = messages.get(position).getMessage();
-        holder.imageview.setImageResource(image);
+        holder.imageview.setImageBitmap(image_bitmap);
         holder.usnview.setText(usn);
         holder.message_detail_view.setText(reply);
     }

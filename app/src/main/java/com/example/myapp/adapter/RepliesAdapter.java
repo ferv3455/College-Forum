@@ -2,6 +2,8 @@ package com.example.myapp.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import com.example.myapp.activity.DetailActivity;
 import com.example.myapp.data.Reply;
 
 
+import java.util.Base64;
 import java.util.List;
 
 public class RepliesAdapter extends RecyclerView.Adapter<RepliesViewHolder> {
@@ -36,9 +39,10 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesViewHolder> {
         holder.itemView.setOnClickListener(v -> {
             int h = holder.getAdapterPosition();
             Reply m = repliesList.get(h);
+            String id = m.getId();
             Context context = view.getContext();
             Intent intent = new Intent(context, DetailActivity.class);
-            intent.putExtra("id", "83542071-a3e1-42f4-a76f-daf3f748300a");
+            intent.putExtra("id", id);
             context.startActivity(intent);
         });
         return holder;
@@ -46,10 +50,15 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RepliesViewHolder holder, int position) {
-        int image = repliesList.get(position).getImage();
+        String image = repliesList.get(position).getImage();
         String usn = repliesList.get(position).getUsn();
         String reply = repliesList.get(position).getReply();
-        holder.imageview.setImageResource(image);
+        byte[] image1 = new byte[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            image1 = Base64.getDecoder().decode(image);
+        }
+        Bitmap image_bitmap = BitmapFactory.decodeByteArray(image1,0, image1.length);
+        holder.imageview.setImageBitmap(image_bitmap);
         holder.usnview.setText(usn);
         holder.replyview.setText(reply);
     }

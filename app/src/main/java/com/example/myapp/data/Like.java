@@ -1,19 +1,23 @@
 package com.example.myapp.data;
 
-public class Like {
-    int image;
-    String usn;
+import android.graphics.Bitmap;
 
-    public Like(int image, String usn) {
+public class Like {
+    String image;
+    String usn;
+    String id;
+
+    public Like(String image, String usn,String id) {
         this.image = image;
         this.usn = usn;
+        this.id = id;
     }
 
-    public int getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(int image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -23,5 +27,13 @@ public class Like {
 
     public void setUsn(String usn) {
         this.usn = usn;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

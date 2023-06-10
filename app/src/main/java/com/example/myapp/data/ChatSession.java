@@ -1,21 +1,25 @@
 package com.example.myapp.data;
 
+import java.util.List;
+
 public class ChatSession {
-    int image;
+    String image;
     String usn;
     String message;
+    List<Message> chathistory;
 
-    public ChatSession(int image, String usn, String message) {
+    public ChatSession(String image, String usn, String message, List<Message> chathistory) {
         this.image = image;
         this.usn = usn;
         this.message = message;
+        this.chathistory = chathistory;
     }
 
-    public int getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(int image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -33,5 +37,13 @@ public class ChatSession {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public List<Message> getChathistory() {
+        return chathistory;
+    }
+
+    public void setChathistory(List<Message> chathistory) {
+        this.chathistory = chathistory;
     }
 }

@@ -12,10 +12,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
+import com.example.myapp.connection.HTTPRequest;
+import com.example.myapp.connection.TokenManager;
 import com.example.myapp.data.Message;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.BitSet;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final LayoutInflater inflater;
@@ -26,6 +36,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private String otherUsername;
     private Bitmap myProfile;
     private Bitmap otherProfile;
+    private String myUsername;
 
     public ChatHistoryAdapter(Context context, List<Message> msgList) {
         this.context = context;
@@ -102,13 +113,32 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         int position = msgList.size() - 1;
         recyclerView.scrollToPosition(position);
     }
-    public  void  addMessage(Message message, RecyclerView recyclerView) {
+    public  void  addMessage(Message message, RecyclerView recyclerView) throws JSONException {
         msgList.add(message);
+        // post消息
+        String token = TokenManager.getSavedToken(context);
+        JSONObject json = new JSONObject();
+        json.put("user",myUsername);
+        json.put("content",message.content);
+        HTTPRequest.post("notification/messages/",json.toString(), token, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+
+            }
+        });
         notifyDataSetChanged();
         scrollToBottom(recyclerView);
     }
     public void setOtherUsername(String usn) {
         this.otherUsername = usn;
+    }
+    public void setmyUsername(String usn) {
+        this.myUsername = usn;
     }
     public void setProfiles (Bitmap myProfile, Bitmap otherProfile){
         this.myProfile = myProfile;
