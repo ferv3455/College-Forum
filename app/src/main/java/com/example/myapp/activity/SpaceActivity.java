@@ -1,13 +1,22 @@
 package com.example.myapp.activity;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -20,11 +29,14 @@ import com.example.myapp.fragment.home.PostListFragment;
 import com.example.myapp.fragment.space.FollowListFragment;
 import com.google.android.material.tabs.TabLayout;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.BreakIterator;
+import java.util.HashSet;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -38,27 +50,46 @@ public class SpaceActivity extends AppCompatActivity {
     private String currentUsername;
     private String currentToken;
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        this.currentUsername = TokenManager.getSavedUsername(this);
-    }
+    public ImageView userAvatar;
+    public TextView userName;
+    public TextView userDescription;
+    public Button followButton;
+    private Set<String> followingUsernames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_space);
 
-        ImageView userAvatar = findViewById(R.id.user_avatar);
-        TextView userName = findViewById(R.id.user_name);
-        TextView userDescription = findViewById(R.id.user_description);  // assuming you have this in your layout
+        userAvatar = findViewById(R.id.user_avatar);
+        userName = findViewById(R.id.user_name);
+        userDescription = findViewById(R.id.user_description);  // assuming you have this in your layout
+        followButton = findViewById(R.id.follow_button);
 
         Intent intent = getIntent();
         if (intent.hasExtra("username")) {
             currentUsername = intent.getStringExtra("username");
+            if (this.currentUsername.equals(TokenManager.getSavedUsername(this))) {
+                followButton.setVisibility(View.INVISIBLE);
+            }
+            currentToken = TokenManager.getSavedToken(this);
         } else {
             currentToken = TokenManager.getSavedToken(this);
             currentUsername = TokenManager.getSavedUsername(this);
+            followButton.setVisibility(View.INVISIBLE);
+        }
+
+        SharedPreferences prefs = getSharedPreferences("FollowListPrefs", Context.MODE_PRIVATE);
+        followingUsernames = prefs.getStringSet("followingList", new HashSet<>());
+        System.out.println(followingUsernames);
+
+        // Set the follow button state
+        if (followingUsernames.contains(currentUsername)) {
+            followButton.setText("取消关注");
+            followButton.setBackgroundColor(Color.GRAY); // change the button color to gray
+        } else {
+            followButton.setText("关注");
+            followButton.setBackgroundColor(Color.BLUE); // change the button color to green
         }
 
         HTTPRequest.get("account/profile/" + currentUsername, currentToken, new Callback() {
@@ -143,6 +174,76 @@ public class SpaceActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
+
+        followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // create a JSON object with the usernames to follow/unfollow
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    JSONArray usernameArray = new JSONArray();
+                    // Add the current username to the list
+                    usernameArray.put(currentUsername);
+                    jsonObject.put("username", usernameArray);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                // Check if we are currently following this user
+                boolean isFollowing = followingUsernames.contains(currentUsername);
+
+                // Choose the appropriate HTTP method and response message based on whether we are currently following this user
+                String successMessage = isFollowing ? "取消关注成功" : "关注成功";
+                String failureMessage = isFollowing ? "取消关注失败, 请重试" : "关注失败, 请重试";
+                String followStateMessage = isFollowing ? "关注" : "取消关注";
+                int buttonColor = isFollowing ? Color.GREEN : Color.GRAY;
+
+                // send the request
+                Callback callback = new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        runOnUiThread(() -> {
+                            String followMessage = response.isSuccessful() ? successMessage : failureMessage;
+                            AlertDialog.Builder builder = new AlertDialog.Builder(SpaceActivity.this);
+                            builder.setMessage(followMessage)
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                    .show();
+
+                            if (response.isSuccessful()) {
+                                followButton.setText(followStateMessage);
+                                followButton.setBackgroundColor(buttonColor);
+
+                                // Update SharedPreferences
+                                if (isFollowing) {
+                                    followingUsernames.remove(currentUsername);
+                                } else {
+                                    followingUsernames.add(currentUsername);
+                                }
+                                SharedPreferences prefs = getSharedPreferences("PREFS_NAME", Context.MODE_PRIVATE);
+                                prefs.edit().putStringSet("following", followingUsernames).apply();
+                            }
+                        });
+                    }
+                };
+
+                if(isFollowing) {
+                    HTTPRequest.delete("account/following", jsonObject.toString(), currentToken, callback);
+                } else {
+                    HTTPRequest.put("account/following", jsonObject.toString(), currentToken, callback);
+                }
+            }
+        });
+
     }
 
 }
