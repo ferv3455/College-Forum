@@ -34,7 +34,7 @@ public class TokenManager {
         SharedPreferences preferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putString(USERNAME, user);
-        return;
+        preferencesEditor.apply();
     }
 
     public static String getSavedUsername(Context context) {
