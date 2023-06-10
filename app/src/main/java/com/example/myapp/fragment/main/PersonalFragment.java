@@ -166,10 +166,16 @@ public class PersonalFragment extends Fragment {
                                     String avatarBase64 = jsonObject.getString("avatar");
                                     String description = jsonObject.getString("description");
 
-                                    descriptionView.setText(description);
-                                    byte[] imageBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
-                                    Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                                    avatarView.setImageBitmap(decodedImage);
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            descriptionView.setText(description);
+                                            byte[] imageBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
+                                            Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                                            avatarView.setImageBitmap(decodedImage);
+                                        }
+                                    });
+
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
