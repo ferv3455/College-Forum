@@ -39,6 +39,12 @@ public class SpaceActivity extends AppCompatActivity {
     private String currentToken;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        this.currentUsername = TokenManager.getSavedUsername(this);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_space);

@@ -29,6 +29,14 @@ public class TokenManager {
         return token;
     }
 
+    public static void changeUsername(String username, Context context) {
+        user = username;
+        SharedPreferences preferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor preferencesEditor = preferences.edit();
+        preferencesEditor.putString(USERNAME, user);
+        return;
+    }
+
     public static String getSavedUsername(Context context) {
         if (token == null) {
             SharedPreferences preferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
