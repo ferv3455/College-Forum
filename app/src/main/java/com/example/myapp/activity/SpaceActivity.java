@@ -1,9 +1,12 @@
 package com.example.myapp.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
@@ -32,6 +35,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.BreakIterator;
+import java.util.HashSet;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -49,6 +54,7 @@ public class SpaceActivity extends AppCompatActivity {
     public TextView userName;
     public TextView userDescription;
     public Button followButton;
+    private Set<String> followingUsernames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +72,24 @@ public class SpaceActivity extends AppCompatActivity {
             if (this.currentUsername.equals(TokenManager.getSavedUsername(this))) {
                 followButton.setVisibility(View.INVISIBLE);
             }
-            followButton.setVisibility(View.VISIBLE);
             currentToken = TokenManager.getSavedToken(this);
         } else {
             currentToken = TokenManager.getSavedToken(this);
             currentUsername = TokenManager.getSavedUsername(this);
             followButton.setVisibility(View.INVISIBLE);
+        }
+
+        SharedPreferences prefs = getSharedPreferences("FollowListPrefs", Context.MODE_PRIVATE);
+        followingUsernames = prefs.getStringSet("followingList", new HashSet<>());
+        System.out.println(followingUsernames);
+
+        // Set the follow button state
+        if (followingUsernames.contains(currentUsername)) {
+            followButton.setText("取消关注");
+            followButton.setBackgroundColor(Color.GRAY); // change the button color to gray
+        } else {
+            followButton.setText("关注");
+            followButton.setBackgroundColor(Color.BLUE); // change the button color to green
         }
 
         HTTPRequest.get("account/profile/" + currentUsername, currentToken, new Callback() {
@@ -160,7 +178,7 @@ public class SpaceActivity extends AppCompatActivity {
         followButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // create a JSON object with the usernames to follow
+                // create a JSON object with the usernames to follow/unfollow
                 JSONObject jsonObject = new JSONObject();
                 try {
                     JSONArray usernameArray = new JSONArray();
@@ -171,8 +189,17 @@ public class SpaceActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                // send the PUT request
-                HTTPRequest.put("account/following", jsonObject.toString(), currentToken, new Callback() {
+                // Check if we are currently following this user
+                boolean isFollowing = followingUsernames.contains(currentUsername);
+
+                // Choose the appropriate HTTP method and response message based on whether we are currently following this user
+                String successMessage = isFollowing ? "取消关注成功" : "关注成功";
+                String failureMessage = isFollowing ? "取消关注失败, 请重试" : "关注失败, 请重试";
+                String followStateMessage = isFollowing ? "关注" : "取消关注";
+                int buttonColor = isFollowing ? Color.GREEN : Color.GRAY;
+
+                // send the request
+                Callback callback = new Callback() {
                     @Override
                     public void onFailure(@NonNull Call call, @NonNull IOException e) {
                         e.printStackTrace();
@@ -181,13 +208,7 @@ public class SpaceActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                         runOnUiThread(() -> {
-                            String followMessage = "";
-                            if (response.isSuccessful()) {
-                                followMessage = "关注成功";
-                                followButton.setText("已关注");
-                            } else {
-                                followMessage = "关注失败, 请重试";
-                            }
+                            String followMessage = response.isSuccessful() ? successMessage : failureMessage;
                             AlertDialog.Builder builder = new AlertDialog.Builder(SpaceActivity.this);
                             builder.setMessage(followMessage)
                                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -197,9 +218,29 @@ public class SpaceActivity extends AppCompatActivity {
                                         }
                                     })
                                     .show();
+
+                            if (response.isSuccessful()) {
+                                followButton.setText(followStateMessage);
+                                followButton.setBackgroundColor(buttonColor);
+
+                                // Update SharedPreferences
+                                if (isFollowing) {
+                                    followingUsernames.remove(currentUsername);
+                                } else {
+                                    followingUsernames.add(currentUsername);
+                                }
+                                SharedPreferences prefs = getSharedPreferences("PREFS_NAME", Context.MODE_PRIVATE);
+                                prefs.edit().putStringSet("following", followingUsernames).apply();
+                            }
                         });
                     }
-                });
+                };
+
+                if(isFollowing) {
+                    HTTPRequest.delete("account/following", jsonObject.toString(), currentToken, callback);
+                } else {
+                    HTTPRequest.put("account/following", jsonObject.toString(), currentToken, callback);
+                }
             }
         });
 
