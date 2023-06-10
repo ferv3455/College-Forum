@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,24 +40,27 @@ public class SpaceActivity extends AppCompatActivity {
     private String currentUsername;
     private String currentToken;
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        this.currentUsername = TokenManager.getSavedUsername(this);
-    }
+    public ImageView userAvatar;
+    public TextView userName;
+    public TextView userDescription;
+    public Button followButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_space);
 
-        ImageView userAvatar = findViewById(R.id.user_avatar);
-        TextView userName = findViewById(R.id.user_name);
-        TextView userDescription = findViewById(R.id.user_description);  // assuming you have this in your layout
+        userAvatar = findViewById(R.id.user_avatar);
+        userName = findViewById(R.id.user_name);
+        userDescription = findViewById(R.id.user_description);  // assuming you have this in your layout
+        followButton = findViewById(R.id.follow_button);
 
         Intent intent = getIntent();
         if (intent.hasExtra("username")) {
             currentUsername = intent.getStringExtra("username");
+            if (this.currentUsername.equals(TokenManager.getSavedUsername(this))) {
+                followButton.setVisibility(View.INVISIBLE);
+            }
         } else {
             currentToken = TokenManager.getSavedToken(this);
             currentUsername = TokenManager.getSavedUsername(this);
