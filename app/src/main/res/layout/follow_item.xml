@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:layout_margin="10dp"
+    android:background="@drawable/post_background">
 
     <ImageView
         android:id="@+id/follower_avatar"
