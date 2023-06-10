@@ -290,46 +290,6 @@
                         android:scaleType="fitCenter"
                         android:padding="8dp" />
 
-                    <ImageButton
-                        android:id="@+id/action_insert_image"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@null"
-                        android:contentDescription="@null"
-                        android:src="@drawable/insert_image"
-                        android:scaleType="fitCenter"
-                        android:padding="8dp" />
-
-                    <ImageButton
-                        android:id="@+id/action_insert_audio"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@null"
-                        android:contentDescription="@null"
-                        android:src="@drawable/music"
-                        android:scaleType="fitCenter"
-                        android:padding="8dp" />
-
-                    <ImageButton
-                        android:id="@+id/action_insert_video"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@null"
-                        android:contentDescription="@null"
-                        android:src="@drawable/video"
-                        android:scaleType="fitCenter"
-                        android:padding="8dp" />
-
-                    <ImageButton
-                        android:id="@+id/action_insert_link"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@null"
-                        android:contentDescription="@null"
-                        android:src="@drawable/insert_link"
-                        android:scaleType="fitCenter"
-                        android:padding="8dp" />
-
                 </LinearLayout>
             </HorizontalScrollView>
 

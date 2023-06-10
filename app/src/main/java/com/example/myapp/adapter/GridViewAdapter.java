@@ -49,11 +49,19 @@ public class GridViewAdapter extends BaseAdapter {
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         icon.setImageBitmap(decodedByte);
 
+        if (context instanceof DisplayMedia) {
+            view.setOnClickListener(v -> ((DisplayMedia) context).show(i));
+        }
+
         return view;
     }
 
     public void setImages(String[] images) {
         this.images = images;
         notifyDataSetChanged();
+    }
+
+    public interface DisplayMedia {
+        public void show(int i);
     }
 }

@@ -13,6 +13,7 @@
     <string name="space_name">空间</string>
     <string name="login_name">登录</string>
     <string name="chat_name">私信聊天</string>
+    <string name="media_name">媒体内容</string>
 
     <!--  新建帖子  -->
     <string name="new_post_title">请输入帖子标题...</string>

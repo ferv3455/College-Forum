@@ -39,13 +39,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements GridViewAdapter.DisplayMedia {
     private Post post = null;
     private ImageView avatarView;
     private TextView usernameView;
@@ -125,7 +127,7 @@ public class DetailActivity extends AppCompatActivity {
 
                     assert responseBody != null;
                     JSONObject result = new JSONObject(responseBody.string());
-                    post = new Post(result, true);
+                    post = new Post(result);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -396,5 +398,14 @@ public class DetailActivity extends AppCompatActivity {
             starsImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray)));
             starsView.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray)));
         }
+    }
+
+    @Override
+    public void show(int i) {
+        Log.d("media", "media");
+        Intent intent = new Intent(this, MediaActivity.class);
+        intent.putExtra("type", post.getImageTypes()[i]);
+        intent.putExtra("url", "http://139.196.30.181:10243" + post.getImageUrls()[i]);
+        startActivity(intent);
     }
 }

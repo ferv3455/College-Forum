@@ -20,6 +20,7 @@ import android.widget.PopupMenu;
 
 import com.example.myapp.activity.DetailActivity;
 import com.example.myapp.activity.MainActivity;
+import com.example.myapp.activity.MediaActivity;
 import com.example.myapp.activity.NewPostActivity;
 import com.example.myapp.adapter.PostListAdapter;
 import com.example.myapp.R;

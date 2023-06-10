@@ -2,11 +2,13 @@ package com.example.myapp.connection;
 
 import android.util.Log;
 
+import java.io.File;
 import java.util.Map;
 
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -74,6 +76,29 @@ public class HTTPRequest {
         }
         client.newCall(request).enqueue(callback);
         Log.d("HTTP", "attempting to send a POST request");
+    }
+
+    public static void post(String url, File file, String token, Callback callback) {
+        RequestBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.getName(), RequestBody.create(file, MediaType.parse("image/png")))
+                .build();
+        Request request;
+        if (token != null) {
+            request = new Request.Builder()
+                    .url(BASE_URL + url)
+                    .post(body)
+                    .addHeader("Authorization", String.format("Token %s", token))
+                    .build();
+        }
+        else {
+            request = new Request.Builder()
+                    .url(BASE_URL + url)
+                    .post(body)
+                    .build();
+        }
+        client.newCall(request).enqueue(callback);
+        Log.d("HTTP", "attempting to send a POST request with files");
     }
 
     public static void put(String url, String json, String token, Callback callback) {

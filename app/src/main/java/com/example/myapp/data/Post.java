@@ -20,6 +20,8 @@ public class Post implements Parcelable {
     private final String username;
     private final String[] tags;
     private final String[] images;
+    private final String[] imageTypes;
+    private final String[] imageUrls;
     private final String createdAt;
     private final String location;
     private int comments;
@@ -41,6 +43,8 @@ public class Post implements Parcelable {
 //            images[i] = testImage[(int)(Math.random() * 2)];
 //        }
         this.images = new String[0];
+        this.imageTypes = new String[0];
+        this.imageUrls = new String[0];
         this.location = null;
         this.comments = (int)(Math.random() * 1000);
         this.likes = (int)(Math.random() * 1000);
@@ -58,6 +62,8 @@ public class Post implements Parcelable {
         this.tags = tags;
         this.createdAt = new SimpleDateFormat("MM-dd HH:mm").format(new Date());
         this.images = images;
+        this.imageTypes = new String[images.length];
+        this.imageUrls = new String[images.length];
         this.location = null;
         this.comments = (int)(Math.random() * 1000);
         this.likes = (int)(Math.random() * 1000);
@@ -74,6 +80,8 @@ public class Post implements Parcelable {
         this.username = in.readString();
         this.tags = in.createStringArray();
         this.images = in.createStringArray();
+        this.imageTypes = in.createStringArray();
+        this.imageUrls = in.createStringArray();
         this.createdAt = in.readString();
         this.location = in.readString();
         this.comments = in.readInt();
@@ -83,7 +91,7 @@ public class Post implements Parcelable {
         this.isStarred = in.readInt() > 0;
     }
 
-    public Post(JSONObject obj, boolean full) {
+    public Post(JSONObject obj) {
         try {
             this.id = obj.getString("id");
             this.intro = obj.getString("title");
@@ -107,8 +115,12 @@ public class Post implements Parcelable {
             JSONArray image_list = obj.getJSONArray("images");
             int size = image_list.length();
             this.images = new String[size];
+            this.imageTypes = new String[size];
+            this.imageUrls = new String[size];
             for (int i = 0; i < size; i++) {
-                this.images[i] = image_list.getJSONObject(i).getString(full ? "content" : "thumbnail");
+                this.images[i] = image_list.getJSONObject(i).getString("thumbnail");
+                this.imageTypes[i] = image_list.getJSONObject(i).getString("type");
+                this.imageUrls[i] = image_list.getJSONObject(i).getString("file");
             }
 
             JSONArray tags_list = obj.getJSONArray("tags");
@@ -148,6 +160,14 @@ public class Post implements Parcelable {
 
     public String[] getImages() {
         return images;
+    }
+
+    public String[] getImageTypes() {
+        return imageTypes;
+    }
+
+    public String[] getImageUrls() {
+        return imageUrls;
     }
 
     public String getCreatedAt() {
@@ -212,6 +232,8 @@ public class Post implements Parcelable {
         parcel.writeString(username);
         parcel.writeStringArray(tags);
         parcel.writeStringArray(images);
+        parcel.writeStringArray(imageTypes);
+        parcel.writeStringArray(imageUrls);
         parcel.writeString(createdAt);
         parcel.writeString(location);
         parcel.writeInt(comments);

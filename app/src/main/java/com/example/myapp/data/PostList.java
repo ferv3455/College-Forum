@@ -26,7 +26,7 @@ public class PostList implements Parcelable {
         list.clear();
         try {
             for (int i = 0; i < array.length(); i++) {
-                list.add(new Post(array.getJSONObject(i), false));
+                list.add(new Post(array.getJSONObject(i)));
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);

@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -182,30 +183,22 @@ public class ContentManager {
         });
     }
 
-    public static void uploadImage(Context context, String data, Callback callback) {
-        try {
-            // Initialize post data
-            JSONObject obj = new JSONObject();
-            obj.put("data", data);
-
-            HTTPRequest.post("forum/image/", obj.toString(), TokenManager.getSavedToken(context), new Callback() {
-                @Override
-                public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    if (callback != null){
-                        callback.onFailure(call, e);
-                    }
+    public static void uploadMedia(Context context, File file, Callback callback) {
+        HTTPRequest.post("forum/file/", file, TokenManager.getSavedToken(context), new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                if (callback != null){
+                    callback.onFailure(call, e);
                 }
+            }
 
-                @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    Log.d("Image", "update a new image");
-                    if (callback != null) {
-                        callback.onResponse(call, response);
-                    }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                Log.d("Image", "update a new image");
+                if (callback != null) {
+                    callback.onResponse(call, response);
                 }
-            });
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+            }
+        });
     }
 }
