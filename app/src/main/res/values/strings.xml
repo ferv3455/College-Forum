@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">校园动态</string>
     <string name="add_button_description">添加</string>
+    <string name="sort_button_description">排序</string>
     <string name="title_home">首页</string>
     <string name="title_topics">话题</string>
     <string name="title_notifications">通知</string>
@@ -22,5 +23,14 @@
 
     <!-- 私聊界面 -->
     <string name="chat_activity_title">聊天 - 用户名</string>
+
+    <!-- 动态详情 -->
+    <string name="comment_title">全部评论</string>
+
+    <!-- 排序方式 -->
+    <string name="sort_time">发帖时间</string>
+    <string name="sort_comment_time">回复时间</string>
+    <string name="sort_likes">点赞数</string>
+    <string name="sort_comments">回复数</string>
 
 </resources>

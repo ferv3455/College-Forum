@@ -7,8 +7,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.example.myapp.fragment.home.PostListFragment;
 
 public class PostsPagerAdapter extends FragmentStateAdapter {
-    public static String[] tabTitles = {"新发表", "新回复", "热门", "关注"};
-    public static String[] sortBy = {"time", "time", "hot", "following"};
+    public static String[] tabTitles = {"全部", "热门", "关注"};
+    public static String[] filter = {null, "hot", "following"};
 
     public PostsPagerAdapter(Fragment fragment) {
         super(fragment);
@@ -18,11 +18,11 @@ public class PostsPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         // Return a NEW fragment instance in createFragment(int)
-        return PostListFragment.newInstance(sortBy[position], 0);
+        return PostListFragment.newInstance(null, filter[position], "time");
     }
 
     @Override
     public int getItemCount() {
-        return 4;
+        return 3;
     }
 }

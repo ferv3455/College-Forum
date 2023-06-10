@@ -40,4 +40,18 @@
             android:clickable="true"
             android:focusable="true" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/sortButton"
+            android:contentDescription="@string/sort_button_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:backgroundTint="@color/purple_200"
+            android:src="@drawable/sort"
+            app:tint="@color/black"
+            android:clickable="true"
+            android:focusable="true" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,11 @@ package com.example.myapp.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -12,17 +16,22 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.myapp.R;
+import com.example.myapp.adapter.CommentListAdapter;
 import com.example.myapp.adapter.GridViewAdapter;
 import com.example.myapp.connection.ContentManager;
 import com.example.myapp.connection.HTTPRequest;
 import com.example.myapp.connection.TokenManager;
+import com.example.myapp.data.CommentList;
 import com.example.myapp.data.Post;
+import com.example.myapp.utils.PostSharing;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,6 +66,12 @@ public class DetailActivity extends AppCompatActivity {
     private boolean isLiked;
     private boolean isStarred;
 
+    private EditText commentEdit;
+    private Button commentButton;
+    private RecyclerView commentView;
+    private CommentListAdapter commentListAdapter;
+    private CommentList commentList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,25 +96,16 @@ public class DetailActivity extends AppCompatActivity {
         starsLayout = findViewById(R.id.starLayout);
         shareLayout = findViewById(R.id.shareLayout);
 
-        likesLayout.setOnClickListener(v -> {
-            if (isLiked) {
-                sendUnlikeRequest();
-            } else {
-                sendLikeRequest();
-            }
-        });
-        starsLayout.setOnClickListener(v -> {
-            if (isStarred) {
-                sendUnstarRequest();
-            } else {
-                sendStarRequest();
-            }
-        });
-        shareLayout.setOnClickListener(v -> {
-            Log.d("Share", "here");
-        });
+        commentButton = findViewById(R.id.commentButton);
+        commentEdit = findViewById(R.id.commentEdit);
+        commentView = findViewById(R.id.commentRecyclerView);
 
         imagesView.setVerticalScrollBarEnabled(false);
+
+        commentList = new CommentList();
+        commentListAdapter = new CommentListAdapter(commentView.getContext(), commentList);
+        commentView.setAdapter(commentListAdapter);
+        commentView.setLayoutManager(new LinearLayoutManager(this));
 
         Intent intent = getIntent();
         String id = intent.getStringExtra("id");
@@ -166,6 +172,53 @@ public class DetailActivity extends AppCompatActivity {
                     GridViewAdapter adapter = new GridViewAdapter(imagesView.getContext(), post.getImages());
                     imagesView.setAdapter(adapter);
                 });
+            }
+        });
+        updateCommentList(id);
+
+        likesLayout.setOnClickListener(v -> {
+            if (isLiked) {
+                sendUnlikeRequest();
+            } else {
+                sendLikeRequest();
+            }
+        });
+        starsLayout.setOnClickListener(v -> {
+            if (isStarred) {
+                sendUnstarRequest();
+            } else {
+                sendStarRequest();
+            }
+        });
+        shareLayout.setOnClickListener(v -> PostSharing.sharePost(post.getId(), post.getIntro(),
+                this, findViewById(R.id.main_layout)));
+
+        commentButton.setOnClickListener(v -> sendCommentRequest());
+    }
+
+    private void updateCommentList(String id) {
+        ContentManager.getPostComments(id, this, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    assert responseBody != null;
+                    JSONArray result = new JSONArray(responseBody.string());
+                    commentList.clear();
+                    commentList.update(result);
+                    if (commentListAdapter != null) {
+                        runOnUiThread(() -> commentListAdapter.notifyDataSetChanged());
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
@@ -284,6 +337,36 @@ public class DetailActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         likesView.setText(Integer.toString(post.getLikes()));
                         updateLikesLayout();
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            }
+        });
+    }
+
+    private void sendCommentRequest() {
+        String url = String.format("forum/comment/%s", post.getId());
+        JSONObject jsonParams = new JSONObject();
+        try {
+            jsonParams.put("content", commentEdit.getText().toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        HTTPRequest.post(url, jsonParams.toString(), TokenManager.getSavedToken(this), new Callback() {
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody ignored = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    runOnUiThread(() -> {
+                        commentEdit.setText("");
+                        updateCommentList(post.getId());
                     });
                 }
             }

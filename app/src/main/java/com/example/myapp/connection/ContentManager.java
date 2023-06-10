@@ -15,9 +15,14 @@ import java.util.Map;
 import okhttp3.*;
 
 public class ContentManager {
-    public static void getPostList(String sortBy, Context context, Callback callback) {
+    public static void getPostList(String filter, String sortBy, Context context, Callback callback) {
         HashMap<String, String> params = new HashMap<>();
-        params.put("sortBy", sortBy);
+        if (filter != null) {
+            params.put("filter", filter);
+        }
+        if (sortBy != null) {
+            params.put("sortBy", sortBy);
+        }
         HTTPRequest.getWithParams("forum/posts/", params, TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -36,12 +41,15 @@ public class ContentManager {
         });
     }
 
-    public static void getUserPosts(String username, Context context, Callback callback) {
+    public static void getUserPosts(String username, String sortBy, Context context, Callback callback) {
         if (username == null) {
             username = TokenManager.getSavedUsername(context);
         }
         HashMap<String, String> params = new HashMap<>();
         params.put("user", username);
+        if (sortBy != null) {
+            params.put("sortBy", sortBy);
+        }
         HTTPRequest.getWithParams("forum/posts/", params, TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -60,7 +68,7 @@ public class ContentManager {
         });
     }
 
-    public static void getUserFavorites(String username, Context context, Callback callback) {
+    public static void getUserFavorites(String username, String sortBy, Context context, Callback callback) {
         if (username != null) {
             username = "/" + username;
         }
@@ -68,7 +76,12 @@ public class ContentManager {
             username = "";
         }
 
-        HTTPRequest.get("account/favorites" + username, TokenManager.getSavedToken(context), new Callback() {
+        HashMap<String, String> params = new HashMap<>();
+        if (sortBy != null) {
+            params.put("sortBy", sortBy);
+        }
+
+        HTTPRequest.getWithParams("account/favorites" + username, params, TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 if (callback != null){
@@ -89,7 +102,9 @@ public class ContentManager {
     public static void searchPostList(String queryString, String sortBy, Context context, Callback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("query", queryString);
-        params.put("sortBy", sortBy);
+        if (sortBy != null) {
+            params.put("sortBy", sortBy);
+        }
         HTTPRequest.getWithParams("forum/posts/", params, TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -126,6 +141,26 @@ public class ContentManager {
                 }
             }
         });
+    }
+
+    public static void getPostComments(String id, Context context, Callback callback) {
+        HTTPRequest.get(String.format("forum/comment/%s", id), TokenManager.getSavedToken(context),
+                new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        if (callback != null){
+                            callback.onFailure(call, e);
+                        }
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        Log.d("CommentList", "retrieve the comment list");
+                        if (callback != null) {
+                            callback.onResponse(call, response);
+                        }
+                    }
+                });
     }
 
     public static void createPost(Context context, JSONObject data, Callback callback) {

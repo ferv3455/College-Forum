@@ -11,9 +11,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 
 import com.example.myapp.activity.DetailActivity;
 import com.example.myapp.activity.MainActivity;
@@ -29,24 +32,32 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class PostListFragment extends Fragment implements PostListAdapter.PostDetailEventListener {
+public class PostListFragment extends Fragment
+        implements PostListAdapter.PostDetailEventListener, PopupMenu.OnMenuItemClickListener {
+    private static final List<String> sortParams = Arrays.asList("time", "comment-time", "likes", "comments");
+    private static final String ARG_USER = "USER";
+    private static final String ARG_FILTER = "FILTER";
     private static final String ARG_SORT_BY = "SORT_BY";
-    private static final String ARG_STATE = "STATE";
     private final static String STATE_POSTS = "STATE_POSTS";
     private PostList postList = null;
+    private String user = null; // null: home page
+    private String filter = null; // null: all
     private String sortBy = "time";
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
     private FloatingActionButton addButton;
+    private FloatingActionButton sortButton;
     private PostListAdapter adapter = null;
     private View view;
-    private int state = 0;
 
     private final ActivityResultLauncher<Intent> newPostLauncher = registerForActivityResult(
         new ActivityResultContracts.StartActivityForResult(),
@@ -61,12 +72,13 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
         // Required empty public constructor
     }
 
-    public static PostListFragment newInstance(String sortBy, int state) {
+    public static PostListFragment newInstance(String user, String filter, String sortBy) {
         // State for getting postList(default, self, favorite)
         PostListFragment fragment = new PostListFragment();
         Bundle args = new Bundle();
+        args.putString(ARG_USER, user);
+        args.putString(ARG_FILTER, filter);
         args.putString(ARG_SORT_BY, sortBy);
-        args.putInt(ARG_STATE, state);
         fragment.setArguments(args);
         return fragment;
     }
@@ -75,8 +87,9 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            user = getArguments().getString(ARG_USER);
+            filter = getArguments().getString(ARG_FILTER);
             sortBy = getArguments().getString(ARG_SORT_BY);
-            state = getArguments().getInt(ARG_STATE);
         }
 
         if (savedInstanceState != null) {
@@ -92,7 +105,7 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_home_new_posted, container, false);
+        view = inflater.inflate(R.layout.fragment_home_postlist, container, false);
 
         refreshLayout = view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener(this::updatePostList);
@@ -103,6 +116,19 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         addButton = view.findViewById(R.id.addButton);
         addButton.setOnClickListener(view -> onCreatePost());
+
+        if (user != null) {
+            addButton.setVisibility(View.GONE);
+        }
+
+        sortButton = view.findViewById(R.id.sortButton);
+        sortButton.setOnClickListener(view -> {
+            PopupMenu menu = new PopupMenu(getContext(), view);
+            menu.getMenuInflater().inflate(R.menu.sort_menu, menu.getMenu());
+            setMenuItemChecked(menu);
+            menu.setOnMenuItemClickListener(this);
+            menu.show();
+        });
 
         return view;
     }
@@ -126,15 +152,47 @@ public class PostListFragment extends Fragment implements PostListAdapter.PostDe
         newPostLauncher.launch(intent);
     }
 
+    public void setMenuItemChecked(PopupMenu menu) {
+        int index = sortParams.indexOf(sortBy);
+        MenuItem item = menu.getMenu().getItem(index);
+        item.setChecked(true);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sort_time:
+                sortBy = "time";
+                break;
+            case R.id.sort_comment_time:
+                sortBy = "comment-time";
+                break;
+            case R.id.sort_likes:
+                sortBy = "likes";
+                break;
+            case R.id.sort_comments:
+                sortBy = "comments";
+                break;
+            default:
+                return false;
+        }
+        updatePostList();
+        return true;
+    }
+
     public void updatePostList() {
-        if (state == 0) {
-            ContentManager.getPostList(sortBy, getActivity(), new PostListCallback());
+        if (user == null) {
+            // Home page
+            ContentManager.getPostList(filter, sortBy, getActivity(), new PostListCallback());
         }
-        else if(state == 1) {
-            ContentManager.getUserPosts(null, getActivity(), new PostListCallback());
-        }
-        else if(state == 2) {
-            ContentManager.getUserFavorites(null, getActivity(), new PostListCallback());
+        else {
+            // Personal space
+            if (filter == null) {
+                ContentManager.getUserPosts(user, sortBy, getActivity(), new PostListCallback());
+            }
+            else {
+                ContentManager.getUserFavorites(user, sortBy, getActivity(), new PostListCallback());
+            }
         }
     }
 
