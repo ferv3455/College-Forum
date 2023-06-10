@@ -87,7 +87,11 @@ public class Post implements Parcelable {
         try {
             this.id = obj.getString("id");
             this.intro = obj.getString("title");
-            this.content = obj.getString("content");
+            if (obj.has("content")) {
+                this.content = obj.getString("content");
+            } else {
+                this.content = "无内容"; // 或者设置一个默认值
+            }
             this.avatar = obj.getJSONObject("user_profile").getString("avatar");
             this.username = obj.getJSONObject("user_profile").getJSONObject("user").getString("username");
             this.createdAt = obj.getString("createdAt");
@@ -108,7 +112,11 @@ public class Post implements Parcelable {
             int size = image_list.length();
             this.images = new String[size];
             for (int i = 0; i < size; i++) {
-                this.images[i] = image_list.getJSONObject(i).getString(full ? "content" : "thumbnail");
+                if (image_list.getJSONObject(i).has(full ? "content" : "thumbnail")) {
+                    this.images[i] = image_list.getJSONObject(i).getString(full ? "content" : "thumbnail");
+                } else {
+                    this.images[i] = ""; // 或者设置一个默认值
+                }
             }
 
             JSONArray tags_list = obj.getJSONArray("tags");
