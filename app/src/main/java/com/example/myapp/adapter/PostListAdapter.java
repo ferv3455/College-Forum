@@ -1,6 +1,7 @@
 package com.example.myapp.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,6 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
+import com.example.myapp.activity.SpaceActivity;
 import com.example.myapp.connection.HTTPRequest;
 import com.example.myapp.connection.TokenManager;
 import com.example.myapp.data.Post;
@@ -321,6 +323,15 @@ public class PostListAdapter extends RecyclerView.Adapter<PostViewHolder> {
 
         GridViewAdapter adapter = new GridViewAdapter(context, post.getImages());
         holder.imagesView.setAdapter(adapter);
+
+        holder.avatarView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), SpaceActivity.class);
+                intent.putExtra("username", post.getUsername());
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override

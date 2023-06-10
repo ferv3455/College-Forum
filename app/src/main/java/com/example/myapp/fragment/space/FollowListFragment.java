@@ -83,26 +83,30 @@ public class FollowListFragment extends Fragment implements FollowListAdapter.Fo
                         }
                         for (int i = 0; i < followArray.length(); i++) {
                             JSONObject followObj = followArray.getJSONObject(i);
+
                             int tempId = followObj.getJSONObject("user").getInt("id");
                             String followName = followObj.getJSONObject("user").getString("username");
                             String avatar = followObj.getString("avatar");
                             String description = followObj.getString("description");
-                            boolean isFollowed = followObj.getBoolean("is_followed");  // 假设 "is_followed" 是你的 API 返回的 JSON 数据中表示关注状态的字段
+                            boolean isFollowed = false;  // TODO "is_followed" 是API 返回的 JSON 数据中表示关注状态的字段
                             Follow follow = new Follow(tempId, followName, avatar, description, isFollowed);
                             followList.insert(follow);
                         }
                         // Now followList contains the list of people the user is following or followed depending on the state
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                followListAdapter = new FollowListAdapter(getContext(), followList, FollowListFragment.this);
+                                recyclerView.setAdapter(followListAdapter);
+                            }
+                        });
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
-
             }
         });
-        // Replace this with actual call to API
 
-        followListAdapter = new FollowListAdapter(getContext(), followList,this);
-        recyclerView.setAdapter(followListAdapter);
         return view;
     }
 

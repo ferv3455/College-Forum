@@ -1,5 +1,6 @@
 package com.example.myapp.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,7 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -22,6 +26,7 @@ import com.example.myapp.fragment.home.PostListFragment;
 import com.example.myapp.fragment.space.FollowListFragment;
 import com.google.android.material.tabs.TabLayout;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,9 +66,12 @@ public class SpaceActivity extends AppCompatActivity {
             if (this.currentUsername.equals(TokenManager.getSavedUsername(this))) {
                 followButton.setVisibility(View.INVISIBLE);
             }
+            followButton.setVisibility(View.VISIBLE);
+            currentToken = TokenManager.getSavedToken(this);
         } else {
             currentToken = TokenManager.getSavedToken(this);
             currentUsername = TokenManager.getSavedUsername(this);
+            followButton.setVisibility(View.INVISIBLE);
         }
 
         HTTPRequest.get("account/profile/" + currentUsername, currentToken, new Callback() {
@@ -148,6 +156,53 @@ public class SpaceActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
+
+        followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // create a JSON object with the usernames to follow
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    JSONArray usernameArray = new JSONArray();
+                    // Add the current username to the list
+                    usernameArray.put(currentUsername);
+                    jsonObject.put("username", usernameArray);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                // send the PUT request
+                HTTPRequest.put("account/following", jsonObject.toString(), currentToken, new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        runOnUiThread(() -> {
+                            String followMessage = "";
+                            if (response.isSuccessful()) {
+                                followMessage = "关注成功";
+                                followButton.setText("已关注");
+                            } else {
+                                followMessage = "关注失败, 请重试";
+                            }
+                            AlertDialog.Builder builder = new AlertDialog.Builder(SpaceActivity.this);
+                            builder.setMessage(followMessage)
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                    .show();
+                        });
+                    }
+                });
+            }
+        });
+
     }
 
 }
