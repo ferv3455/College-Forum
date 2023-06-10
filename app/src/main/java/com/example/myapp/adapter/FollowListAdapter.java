@@ -158,6 +158,9 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
 
     @Override
     public int getItemCount() {
+        if (followList == null) {
+            return 0;
+        }
         return followList.size();
     }
 
