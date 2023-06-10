@@ -28,7 +28,7 @@
     <string name="comment_title">全部评论</string>
 
     <!-- 排序方式 -->
-    <string name="sort_time">发帖时间</string>
+    <string name="sort_time">发布时间</string>
     <string name="sort_comment_time">回复时间</string>
     <string name="sort_likes">点赞数</string>
     <string name="sort_comments">回复数</string>

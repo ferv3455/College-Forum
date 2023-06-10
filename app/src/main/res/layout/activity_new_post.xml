@@ -41,155 +41,412 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/newPostMainContent"
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/newPostTitleBar" >
+        app:layout_constraintTop_toBottomOf="@+id/newPostTitleBar"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <EditText
-            android:id="@+id/titleEdit"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/newPostMainContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/new_post_title"
-            android:inputType="text"
-            android:textStyle="bold"
-            android:background="@null"
-            android:padding="12dp"
-            app:layout_constraintBottom_toTopOf="@+id/newPostSep1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <View
-            android:id="@+id/newPostSep1"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/gray"
-            app:layout_constraintBottom_toTopOf="@+id/contentEdit"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleEdit" />
-
-        <EditText
-            android:id="@+id/contentEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:gravity="start|top"
-            android:hint="@string/new_post_content"
-            android:inputType="textMultiLine"
-            android:lines="8"
-            android:padding="12dp"
-            app:layout_constraintBottom_toTopOf="@+id/newImagesGridView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/newPostSep1" />
-
-        <com.example.myapp.customview.FullGridView
-            android:id="@+id/newImagesGridView"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:horizontalSpacing="4dp"
-            android:numColumns="3"
-            android:verticalSpacing="4dp"
-            android:padding="12dp"
-            app:layout_constraintBottom_toTopOf="@+id/newPostSep2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/contentEdit" />
-
-        <View
-            android:id="@+id/newPostSep2"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/gray"
-            app:layout_constraintBottom_toTopOf="@+id/newLocationLayout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/newImagesGridView" />
-
-        <LinearLayout
-            android:id="@+id/newLocationLayout"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:background="?android:attr/selectableItemBackground"
-            app:layout_constraintBottom_toTopOf="@+id/newTagLayout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/newPostSep2"
-            android:focusable="true">
-
-            <ImageView
-                android:id="@+id/locationImageView"
-                android:layout_width="30dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                app:tint="@color/gray"
-                app:srcCompat="@drawable/location" />
-
-            <TextView
-                android:id="@+id/locationTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="16dp"
-                android:text="@string/select_location"
-                android:textColor="@color/gray" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/newTagLayout"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:background="?android:attr/selectableItemBackground"
-            app:layout_constraintBottom_toTopOf="@+id/newPostSep4"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/newLocationLayout"
-            android:focusable="true">
-                
-            <ImageView
-                android:id="@+id/tagImageView"
-                android:layout_width="30dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                app:tint="@color/gray"
-                app:srcCompat="@drawable/tag" />
+            android:padding="16dp"
+            app:layout_constraintTop_toTopOf="parent" >
 
             <EditText
-                android:id="@+id/tagEditView"
-                android:layout_width="wrap_content"
+                android:id="@+id/titleEdit"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="16dp"
-                android:ems="10"
-                android:background="@null"
+                android:hint="@string/new_post_title"
                 android:inputType="text"
-                android:hint="@string/select_tag"
-                android:textColor="@color/gray" />
-        </LinearLayout>
+                android:textStyle="bold"
+                android:background="@null"
+                android:padding="12dp"
+                app:layout_constraintBottom_toTopOf="@+id/newPostSep1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <View
-            android:id="@+id/newPostSep4"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/newTagLayout" />
+            <View
+                android:id="@+id/newPostSep1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"
+                app:layout_constraintBottom_toTopOf="@+id/controllBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/titleEdit" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- <EditText
+                android:id="@+id/contentEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:gravity="start|top"
+                android:hint="@string/new_post_content"
+                android:inputType="textMultiLine"
+                android:lines="8"
+                android:padding="12dp"
+                app:layout_constraintBottom_toTopOf="@+id/newImagesGridView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/newPostSep1" /> -->
+
+            <HorizontalScrollView
+                android:id="@+id/controllBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/purple_700"
+                app:layout_constraintBottom_toTopOf="@+id/contentEdit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/newPostSep1">
+
+                <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/action_undo"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/undo"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_redo"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/redo"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_bold"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/bold"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_italic"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/italic"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+                        
+                    <ImageButton
+                        android:id="@+id/action_underline"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/underline"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+                        
+                    <ImageButton
+                        android:id="@+id/action_strikethrough"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/strikethrough"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_subscript"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/subscript"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_superscript"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/superscript"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_heading1"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/h1"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_heading2"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/h2"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_heading3"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/h3"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_heading4"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/h4"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_heading5"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/h5"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_heading6"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/h6"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_txt_color"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/txt_color"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_align_left"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/justify_left"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_align_center"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/justify_center"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_insert_bullets"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/bullets"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_insert_image"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/insert_image"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_insert_audio"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/music"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_insert_video"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/video"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/action_insert_link"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:src="@drawable/insert_link"
+                        android:scaleType="fitCenter"
+                        android:padding="8dp" />
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <jp.wasabeef.richeditor.RichEditor
+                android:id="@+id/contentEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@+id/newImagesGridView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/controllBar" />
+
+            <com.example.myapp.customview.FullGridView
+                android:id="@+id/newImagesGridView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:horizontalSpacing="4dp"
+                android:numColumns="3"
+                android:verticalSpacing="4dp"
+                android:padding="12dp"
+                app:layout_constraintBottom_toTopOf="@+id/newPostSep2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/contentEdit" />
+
+            <View
+                android:id="@+id/newPostSep2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"
+                app:layout_constraintBottom_toTopOf="@+id/newLocationLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/newImagesGridView" />
+
+            <LinearLayout
+                android:id="@+id/newLocationLayout"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                app:layout_constraintBottom_toTopOf="@+id/newTagLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/newPostSep2"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/locationImageView"
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    app:tint="@color/gray"
+                    app:srcCompat="@drawable/location" />
+
+                <TextView
+                    android:id="@+id/locationTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="16dp"
+                    android:text="@string/select_location"
+                    android:textColor="@color/gray" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/newTagLayout"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                app:layout_constraintBottom_toTopOf="@+id/newPostSep4"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/newLocationLayout"
+                android:focusable="true">
+                    
+                <ImageView
+                    android:id="@+id/tagImageView"
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    app:tint="@color/gray"
+                    app:srcCompat="@drawable/tag" />
+
+                <EditText
+                    android:id="@+id/tagEditView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="16dp"
+                    android:ems="10"
+                    android:background="@null"
+                    android:inputType="text"
+                    android:hint="@string/select_tag"
+                    android:textColor="@color/gray" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/newPostSep4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/newTagLayout" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

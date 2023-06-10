@@ -13,6 +13,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -132,7 +133,7 @@ public class DetailActivity extends AppCompatActivity {
                     usernameView.setText(post.getUsername());
                     datetimeView.setText(post.getCreatedAt());
                     titleView.setText(post.getIntro());
-                    contentView.setText(post.getContent());
+                    contentView.setText(Html.fromHtml(post.getContent(), Html.FROM_HTML_MODE_LEGACY));
                     likesView.setText(Integer.toString(post.getLikes()));
                     starsView.setText(Integer.toString(post.getStars()));
 

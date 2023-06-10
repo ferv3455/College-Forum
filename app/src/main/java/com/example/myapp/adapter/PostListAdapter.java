@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.Html;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -292,7 +293,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostViewHolder> {
         holder.usernameView.setText(post.getUsername());
         holder.datetimeView.setText(post.getCreatedAt());
         holder.titleView.setText(post.getIntro());
-        holder.contentView.setText(post.getContent());
+        holder.contentView.setText(Html.fromHtml(post.getContent(), Html.FROM_HTML_MODE_LEGACY));
         holder.commentsView.setText(Integer.toString(post.getComments()));
         holder.likesView.setText(Integer.toString(post.getLikes()));
         holder.starsView.setText(Integer.toString(post.getStars()));

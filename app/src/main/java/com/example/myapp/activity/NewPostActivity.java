@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,12 +20,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.example.myapp.R;
@@ -40,9 +43,12 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import jp.wasabeef.richeditor.RichEditor;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -57,7 +63,7 @@ public class NewPostActivity extends AppCompatActivity {
     private static final String INDEXED_IMAGE = "IMAGE_%d";
 
     private EditText titleEdit;
-    private EditText contentEdit;
+    private RichEditor contentEdit;
     private GridView imagesView;
 
     private ImageView locationImage;
@@ -70,6 +76,7 @@ public class NewPostActivity extends AppCompatActivity {
 
     private Button submitButton;
     private EditableGridViewAdapter adapter;
+    private PopupMenu menu = null;
 
     private ArrayList<String> newImagesId = new ArrayList<>();
     private ArrayList<String> newImagesThumbnail = new ArrayList<>();
@@ -151,7 +158,7 @@ public class NewPostActivity extends AppCompatActivity {
 
         preferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
         titleEdit.setText(preferences.getString(TITLE, ""));
-        contentEdit.setText(preferences.getString(CONTENT, ""));
+        contentEdit.setHtml(preferences.getString(CONTENT, ""));
         int imageCount = preferences.getInt(IMAGE_COUNT, 0);
         for (int i = 0; i < imageCount; i++) {
             newImagesId.add(preferences.getString(String.format(INDEXED_ID, i), "ERROR"));
@@ -160,6 +167,15 @@ public class NewPostActivity extends AppCompatActivity {
 
         adapter = new EditableGridViewAdapter(this, newImagesThumbnail.toArray(new String[newImagesThumbnail.size()]));
         imagesView.setAdapter(adapter);
+
+        // Editor settings
+        contentEdit.setEditorHeight(200);
+        contentEdit.setEditorFontSize(20);
+        contentEdit.setPlaceholder("说些什么吧...");
+        contentEdit.setPadding(10, 10, 10, 10);
+
+        // Bind buttons
+        bindEditButtons();
     }
 
     public void addImage(View view) {
@@ -178,7 +194,7 @@ public class NewPostActivity extends AppCompatActivity {
         JSONObject obj = new JSONObject();
         try {
             obj.put("title", titleEdit.getText().toString());
-            obj.put("content", contentEdit.getText().toString());
+            obj.put("content", contentEdit.getHtml());
             JSONArray imageArray = new JSONArray(newImagesId.toArray(new String[newImagesId.size()]));
             obj.put("images", imageArray);
             JSONArray tagArray = new JSONArray(tagEdit.getText().toString().split(" "));
@@ -207,7 +223,7 @@ public class NewPostActivity extends AppCompatActivity {
                     newImagesThumbnail.clear();
                     runOnUiThread(() -> {
                         titleEdit.setText("");
-                        contentEdit.setText("");
+                        contentEdit.setHtml("");
                         newImagesThumbnail.clear();
                         Intent replyIntent = new Intent();
                         setResult(RESULT_OK, replyIntent);
@@ -245,13 +261,17 @@ public class NewPostActivity extends AppCompatActivity {
         super.onPause();
         SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putString(TITLE, titleEdit.getText().toString());
-        preferencesEditor.putString(CONTENT, contentEdit.getText().toString());
+        preferencesEditor.putString(CONTENT, contentEdit.getHtml());
         preferencesEditor.putInt(IMAGE_COUNT, newImagesThumbnail.size());
         for (int i = 0; i < newImagesThumbnail.size(); i++) {
-            preferencesEditor.putString(String.format(INDEXED_ID, i), newImagesId.get(i).toString());
-            preferencesEditor.putString(String.format(INDEXED_IMAGE, i), newImagesThumbnail.get(i).toString());
+            preferencesEditor.putString(String.format(INDEXED_ID, i), newImagesId.get(i));
+            preferencesEditor.putString(String.format(INDEXED_IMAGE, i), newImagesThumbnail.get(i));
         }
         preferencesEditor.apply();
+
+        if (menu != null) {
+            menu.dismiss();
+        }
     }
 
     class TextWatcherWithContext implements TextWatcher {
@@ -274,4 +294,73 @@ public class NewPostActivity extends AppCompatActivity {
         public void afterTextChanged(Editable editable) {
         }
     }
+
+    private void bindEditButtons() {
+        findViewById(R.id.action_undo).setOnClickListener(v -> contentEdit.undo());
+        findViewById(R.id.action_redo).setOnClickListener(v -> contentEdit.redo());
+        findViewById(R.id.action_bold).setOnClickListener(v -> contentEdit.setBold());
+        findViewById(R.id.action_italic).setOnClickListener(v -> contentEdit.setItalic());
+        findViewById(R.id.action_underline).setOnClickListener(v -> contentEdit.setUnderline());
+        findViewById(R.id.action_strikethrough).setOnClickListener(v -> contentEdit.setStrikeThrough());
+        findViewById(R.id.action_subscript).setOnClickListener(v -> contentEdit.setSubscript());
+        findViewById(R.id.action_superscript).setOnClickListener(v -> contentEdit.setSuperscript());
+        findViewById(R.id.action_heading1).setOnClickListener(v -> contentEdit.setHeading(1));
+        findViewById(R.id.action_heading2).setOnClickListener(v -> contentEdit.setHeading(2));
+        findViewById(R.id.action_heading3).setOnClickListener(v -> contentEdit.setHeading(3));
+        findViewById(R.id.action_heading4).setOnClickListener(v -> contentEdit.setHeading(4));
+        findViewById(R.id.action_heading5).setOnClickListener(v -> contentEdit.setHeading(5));
+        findViewById(R.id.action_heading6).setOnClickListener(v -> contentEdit.setHeading(6));
+        findViewById(R.id.action_align_left).setOnClickListener(v -> contentEdit.setAlignLeft());
+        findViewById(R.id.action_align_center).setOnClickListener(v -> contentEdit.setAlignCenter());
+        findViewById(R.id.action_insert_bullets).setOnClickListener(v -> contentEdit.setBullets());
+        findViewById(R.id.action_txt_color).setOnClickListener(view -> {
+            if (menu != null) {
+                menu.dismiss();
+            }
+            menu = new PopupMenu(this, view);
+            menu.getMenuInflater().inflate(R.menu.color_menu, menu.getMenu());
+            menu.setOnMenuItemClickListener(txtColorListener);
+            menu.show();
+        });
+    }
+
+    private PopupMenu.OnMenuItemClickListener txtColorListener = new PopupMenu.OnMenuItemClickListener() {
+
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            switch (menuItem.getItemId()) {
+                case R.id.black:
+                    contentEdit.setTextColor(Color.BLACK);
+                    break;
+                case R.id.red:
+                    contentEdit.setTextColor(Color.RED);
+                    break;
+                case R.id.green:
+                    contentEdit.setTextColor(Color.GREEN);
+                    break;
+                case R.id.blue:
+                    contentEdit.setTextColor(Color.BLUE);
+                    break;
+                case R.id.cyan:
+                    contentEdit.setTextColor(Color.CYAN);
+                    break;
+                case R.id.magenta:
+                    contentEdit.setTextColor(Color.MAGENTA);
+                    break;
+                case R.id.yellow:
+                    contentEdit.setTextColor(Color.YELLOW);
+                    break;
+                case R.id.white:
+                    contentEdit.setTextColor(Color.WHITE);
+                    break;
+                default:
+                    menu.dismiss();
+                    menu = null;
+                    return false;
+            }
+            menu.dismiss();
+            menu = null;
+            return true;
+        }
+    };
 }

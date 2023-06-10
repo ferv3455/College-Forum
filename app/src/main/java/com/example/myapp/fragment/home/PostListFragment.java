@@ -57,6 +57,7 @@ public class PostListFragment extends Fragment
     private FloatingActionButton addButton;
     private FloatingActionButton sortButton;
     private PostListAdapter adapter = null;
+    private PopupMenu menu = null;
     private View view;
 
     private final ActivityResultLauncher<Intent> newPostLauncher = registerForActivityResult(
@@ -123,7 +124,10 @@ public class PostListFragment extends Fragment
 
         sortButton = view.findViewById(R.id.sortButton);
         sortButton.setOnClickListener(view -> {
-            PopupMenu menu = new PopupMenu(getContext(), view);
+            if (menu != null) {
+                menu.dismiss();
+            }
+            menu = new PopupMenu(getContext(), view);
             menu.getMenuInflater().inflate(R.menu.sort_menu, menu.getMenu());
             setMenuItemChecked(menu);
             menu.setOnMenuItemClickListener(this);
@@ -174,8 +178,12 @@ public class PostListFragment extends Fragment
                 sortBy = "comments";
                 break;
             default:
+                menu.dismiss();
+                menu = null;
                 return false;
         }
+        menu.dismiss();
+        menu = null;
         updatePostList();
         return true;
     }
@@ -193,6 +201,14 @@ public class PostListFragment extends Fragment
             else {
                 ContentManager.getUserFavorites(user, sortBy, getActivity(), new PostListCallback());
             }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (menu != null) {
+            menu.dismiss();
         }
     }
 

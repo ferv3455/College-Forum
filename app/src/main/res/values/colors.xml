@@ -13,6 +13,10 @@
     <color name="light_gray">#66888888</color>
     <color name="background">#FFF6F6F6</color>
     <color name="lightblue">#87CEEB</color>
+    <color name="red">#FF0000</color>
     <color name="green">#00FF00</color>
-
+    <color name="blue">#0000FF</color>
+    <color name="magenta">#FF00FF</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="cyan">#00FFFF</color>
 </resources>
