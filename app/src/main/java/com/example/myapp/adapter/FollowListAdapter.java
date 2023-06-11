@@ -78,6 +78,11 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
         this.listener = listener;
     }
 
+    public void updateData(FollowList newFollowList) {
+        this.followList.clear();
+        this.followList.addAll(newFollowList);  // Assuming there is a getList() method in FollowList
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public FollowViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -60,6 +60,8 @@ public class FollowListFragment extends Fragment implements FollowListAdapter.Fo
         recyclerView = view.findViewById(R.id.follow_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        followListAdapter = new FollowListAdapter(getContext(), new FollowList(), FollowListFragment.this);
+        recyclerView.setAdapter(followListAdapter);
         getFollowList(this.state, this.currentUsername, this.currentToken, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -72,6 +74,7 @@ public class FollowListFragment extends Fragment implements FollowListAdapter.Fo
                     String responseBody = response.body().string();
                     try {
                         JSONObject jsonObject = new JSONObject(responseBody);
+                        System.out.println(jsonObject);
                         JSONArray followArray = new JSONArray();
                         FollowList followList = new FollowList();
                         if(state == 1){
@@ -96,8 +99,7 @@ public class FollowListFragment extends Fragment implements FollowListAdapter.Fo
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                followListAdapter = new FollowListAdapter(getContext(), followList, FollowListFragment.this);
-                                recyclerView.setAdapter(followListAdapter);
+                                followListAdapter.updateData(followList);
                             }
                         });
                     } catch (JSONException e) {

@@ -68,4 +68,16 @@ public class FollowList implements Parcelable {
             return new FollowList[size];
         }
     };
+
+    public void clear() {
+        list.clear();
+    }
+
+    public void addAll(FollowList other) {
+        this.list.addAll(other.getList());
+    }
+
+    public ArrayList<Follow> getList() {
+        return list;
+    }
 }
