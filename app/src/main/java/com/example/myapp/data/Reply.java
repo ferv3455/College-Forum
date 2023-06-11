@@ -1,21 +1,31 @@
 package com.example.myapp.data;
 
 public class Reply {
-    private int image;
+    private String image;
     private String usn;
     private String reply;
+    private String id;
 
-    public Reply(int image, String usn, String reply) {
+    public Reply(String image, String usn, String reply, String id) {
         this.image = image;
         this.usn = usn;
         this.reply = reply;
+        this.id=id;
     }
 
-    public int getImage() {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getImage() {
         return image;
     }
 
-    public void setImage(int image) {
+    public void setImage(String image) {
         this.image = image;
     }
 

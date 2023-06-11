@@ -179,6 +179,16 @@ public class DetailActivity extends AppCompatActivity implements GridViewAdapter
         });
         updateCommentList(id);
 
+        avatarView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String username = usernameView.getText().toString();
+                Intent intent = new Intent(DetailActivity.this, SpaceActivity.class);
+                intent.putExtra("username", username);
+                startActivity(intent);
+            }
+        });
+
         likesLayout.setOnClickListener(v -> {
             if (isLiked) {
                 sendUnlikeRequest();

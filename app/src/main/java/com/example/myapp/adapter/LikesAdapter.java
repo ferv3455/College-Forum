@@ -2,6 +2,8 @@ package com.example.myapp.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,7 @@ import com.example.myapp.R;
 import com.example.myapp.activity.DetailActivity;
 import com.example.myapp.data.Like;
 
+import java.util.Base64;
 import java.util.List;
 
 public class LikesAdapter extends RecyclerView.Adapter<LikesViewHolder> {
@@ -35,11 +38,10 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesViewHolder> {
         holder.itemView.setOnClickListener(v -> {
             int h = holder.getAdapterPosition();
             Like m = likesList.get(h);
-            String usn= m.getUsn();
-
+            String id = m.getId();
             Context context = view.getContext();
             Intent intent = new Intent(context, DetailActivity.class);
-            intent.putExtra("id", "83542071-a3e1-42f4-a76f-daf3f748300a");
+            intent.putExtra("id", id);
             context.startActivity(intent);
         });
         return holder;
@@ -47,9 +49,14 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull LikesViewHolder holder, int position) {
-        int image = likesList.get(position).getImage();
+        String image = likesList.get(position).getImage();
+        byte[] image1 = new byte[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            image1 = Base64.getDecoder().decode(image);
+        }
+        Bitmap image_bitmap = BitmapFactory.decodeByteArray(image1,0, image1.length);
         String usn = likesList.get(position).getUsn();
-        holder.imageview.setImageResource(image);
+        holder.imageview.setImageBitmap(image_bitmap);
         holder.usnview.setText(usn);
     }
 

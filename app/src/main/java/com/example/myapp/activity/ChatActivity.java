@@ -10,11 +10,14 @@ import com.example.myapp.adapter.ChatHistoryAdapter;
 import com.example.myapp.connection.TokenManager;
 import com.example.myapp.data.Message;
 import com.example.myapp.connection.HTTPRequest;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -40,13 +44,19 @@ public class ChatActivity extends AppCompatActivity {
     ChatHistoryAdapter adapter;
     Bitmap otherProfileImage;
     Bitmap myProfileImage;
+    String myusn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        Intent intent = getIntent();
+        Bundle bundle = getIntent().getExtras();
+        String chatHistoryJson = bundle.getString("chatHistoryJson");
+        String username = bundle.getString("username");
+        Gson gson = new Gson();
+        Type listType = new TypeToken<ArrayList<Message>>(){}.getType();
+        ArrayList<Message> chatHistory = gson.fromJson(chatHistoryJson, listType);
 
         titleView = findViewById(R.id.chatActivityTitle);
         recyclerView = findViewById(R.id.chatRecyclerView);
@@ -54,13 +64,7 @@ public class ChatActivity extends AppCompatActivity {
         sendMessage = findViewById(R.id.sendChatButton);
         // false 指的是自己发的
         // 从后端获取聊天信息
-        List<Message> msgList = new ArrayList<>();
-        msgList.add(new Message("this is good", true));
-        msgList.add(new Message("this is bad", false));
-        msgList.add(new Message("this is zg", false));
-        msgList.add(new Message("this is by", false));
-        msgList.add(new Message("this is zb", false));
-        msgList.add(new Message("this is cqg", false));
+        List<Message> msgList = chatHistory;
 
         adapter = new ChatHistoryAdapter(this, msgList);
         recyclerView.setAdapter(adapter);
@@ -78,13 +82,11 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
-        String otherUsn = intent.getStringExtra("username");
-        titleView.setText(otherUsn);
-        adapter.setOtherUsername(otherUsn);
-        // 从后端获取头像信息
-        HTTPRequest httpRequest = new HTTPRequest();
+        titleView.setText(username);
+        adapter.setOtherUsername(username);
+
         String token = TokenManager.getSavedToken(this);
-        httpRequest.get("BASE_URL/account/profile",token,new Callback(){
+        HTTPRequest.get("account/profile",token,new Callback(){
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
@@ -109,6 +111,39 @@ public class ChatActivity extends AppCompatActivity {
                             image = Base64.getDecoder().decode(avatar);
                         }
                         myProfileImage = BitmapFactory.decodeByteArray(image,0, image.length);
+                        HTTPRequest.get("account/profile/"+username,token,new Callback(){
+                            @Override
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+                            }
+
+                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                if (!response.isSuccessful()) {
+                                    // 处理请求失败的情况
+                                } else {
+                                    String responseData = response.body().string();
+                                    try {
+                                        // 将返回的 JSON 数据解析为对象
+                                        JSONObject jsonObject = new JSONObject(responseData);
+                                        // 获取 user 字段的值
+                                        JSONObject userObject = jsonObject.getJSONObject("user");
+                                        int id = userObject.getInt("id");
+                                        myusn = userObject.getString("username");
+                                        adapter.setmyUsername(myusn);
+                                        String avatar = jsonObject.getString("avatar");
+                                        // 对解析后的数据进行处理
+                                        byte[] image = new byte[0];
+                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                            image = Base64.getDecoder().decode(avatar);
+                                        }
+                                        otherProfileImage = BitmapFactory.decodeByteArray(image,0, image.length);
+                                        adapter.setProfiles(myProfileImage,otherProfileImage);
+                                    } catch (JSONException e) {
+                                        // 处理 JSON 解析异常
+                                    }
+                                }
+                            }
+                        });
                     } catch (JSONException e) {
                         // 处理 JSON 解析异常
                     }
@@ -116,46 +151,20 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        httpRequest.get("BASE_URL/account/profile/"+otherUsn,token,new Callback(){
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
-            }
 
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    // 处理请求失败的情况
-                } else {
-                    String responseData = response.body().string();
-                    try {
-                        // 将返回的 JSON 数据解析为对象
-                        JSONObject jsonObject = new JSONObject(responseData);
-                        // 获取 user 字段的值
-                        JSONObject userObject = jsonObject.getJSONObject("user");
-                        int id = userObject.getInt("id");
-                        String username = userObject.getString("username");
-                        String avatar = jsonObject.getString("avatar");
-                        // 对解析后的数据进行处理
-                        byte[] image = new byte[0];
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            image = Base64.getDecoder().decode(avatar);
-                        }
-                        otherProfileImage = BitmapFactory.decodeByteArray(image,0, image.length);
-                    } catch (JSONException e) {
-                        // 处理 JSON 解析异常
-                    }
-                }
-            }
-        });
 
-        adapter.setProfiles(myProfileImage,otherProfileImage);
 
         sendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String messageText = myInputMessage.getText().toString();
                 Message newMessage = new Message(messageText,false);
-                adapter.addMessage(newMessage,recyclerView);
+                try {
+                    adapter.addMessage(newMessage,recyclerView);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
                 myInputMessage.setText("");
             }
         });
