@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,6 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -53,6 +56,7 @@ public class MessagesFragment extends Fragment {
     private RecyclerView recyclerView;
     private MessageAdapter adapter;
     private String myusn;
+    private SwipeRefreshLayout refreshLayout;
 
     public static class FullMessage{
         private User fromUser;
@@ -176,12 +180,23 @@ public class MessagesFragment extends Fragment {
         // Inflate the layout for this fragment
         Context context = getContext();
         View view = inflater.inflate(R.layout.fragment_notifications_messages, container, false);
-        // shared preference
 
+        refreshLayout = view.findViewById(R.id.swipeRefresh);
+        refreshLayout.setOnRefreshListener(this::updateMessages);
+
+        // shared preference
+        // TODO
+
+        recyclerView = view.findViewById(R.id.message_recycle);
+        adapter = new MessageAdapter(context, messages);
+        recyclerView.setAdapter(adapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(layoutManager);
 
         String token = TokenManager.getSavedToken(getContext());
-
-        HTTPRequest.get("account/profile",token,new Callback(){
+        HTTPRequest.get("account/profile", token, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
@@ -205,6 +220,12 @@ public class MessagesFragment extends Fragment {
             }
         });
 
+        updateMessages();
+        return view;
+    }
+
+    public void updateMessages() {
+        String token = TokenManager.getSavedToken(getContext());
         HTTPRequest.get("notification/messages/", token, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -214,62 +235,57 @@ public class MessagesFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if (response.isSuccessful()) {
+                    getActivity().runOnUiThread(() -> refreshLayout.setRefreshing(false));
                     String responseData = response.body().string();
                     try {
                         // 将返回的 JSON 数据解析为 FullMessage 类型的列表
                         JSONArray jsonArray = new JSONArray(responseData);
-                        // 更新消息列表
-                        parseFullMessages(responseData);
-                        updateAllMessageList(allMessages);
-                        updateimage(allMessages);
-                        updatesession(allMessageList,allimage);
+                        if (jsonArray.length() > 0) {
+                            // 更新消息列表
+                            parseFullMessages(responseData);
+                            updateAllMessageList(allMessages);
+                            updateimage(allMessages);
+                            updatesession(allMessageList, allimage);
+                            allMessages.clear();
 
-                        // sharedpreference
+                            getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
 
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-                        String currentTime = dateFormat.format(new Date());
-                        JSONObject json = new JSONObject();
-                        json.put("time", currentTime);
+                            // sharedpreference TODO
 
-                        HTTPRequest.post("notification/messages-received/", json.toString(), token, new Callback() {
-                            @Override
-                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                                Log.e("PostTime", "Failed to post time: " + e.getMessage(), e);
-                            }
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+                            TimeZone tz = TimeZone.getTimeZone("Asia/Shanghai");
+                            formatter.setTimeZone(tz);
+                            String currentTime = formatter.format(new Date());
+                            JSONObject json = new JSONObject();
+                            json.put("time", currentTime);
 
-                            @Override
-                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                                if (response.isSuccessful()) {
-                                    Log.i("PostTime", "Successfully posted time");
-                                } else {
-                                    throw new IOException("Unexpected code " + response);
+                            HTTPRequest.post("notification/messages-received/", json.toString(), token, new Callback() {
+                                @Override
+                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                    Log.e("PostTime", "Failed to post time: " + e.getMessage(), e);
                                 }
-                            }
-                        });
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                recyclerView = view.findViewById(R.id.message_recycle);
-                                adapter = new MessageAdapter(context,messages);
-                                recyclerView.setAdapter(adapter);
-                                LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-                                layoutManager.setReverseLayout(true);
-                                layoutManager.setStackFromEnd(true);
-                                recyclerView.setLayoutManager(layoutManager);
-                            }
-                        });
+                                @Override
+                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                    if (response.isSuccessful()) {
+                                        Log.i("PostTime", "Successfully posted time");
+                                    } else {
+                                        throw new IOException("Unexpected code " + response);
+                                    }
+                                }
+                            });
+                        }
                     } catch (JSONException e) {
                         // 处理 JSON 解析异常
                         e.printStackTrace();
                     }
                 } else {
                     // 处理请求失败的情况
+                    getActivity().runOnUiThread(() -> refreshLayout.setRefreshing(false));
                     throw new IOException("Unexpected code " + response);
                 }
             }
         });
-        return view;
     }
 
     private void parseFullMessages(String responseData) throws JSONException {
@@ -311,51 +327,51 @@ public class MessagesFragment extends Fragment {
     }
 
     private void updateAllMessageList (List<FullMessage> fullMessages) {
-        for (FullMessage fullMessage:fullMessages) {
+        for (FullMessage fullMessage : fullMessages) {
             String fromUserUsername = fullMessage.getFromUser().getUser().getUsername();
-            if (!allMessageList.containsKey(fromUserUsername)) {
-                allMessageList.put(fromUserUsername, new ArrayList<>());
-            }
-            List<Message> fromUserMessages = allMessageList.get(fromUserUsername);
-            if(fromUserUsername!=myusn)
-                fromUserMessages.add(new Message(fullMessage.getContent(), true));
-            else fromUserMessages.add(new Message(fullMessage.getContent(), false));
+//            if (!allMessageList.containsKey(fromUserUsername)) {
+//                allMessageList.put(fromUserUsername, new ArrayList<>());
+//            }
+            List<Message> fromUserMessages = allMessageList.computeIfAbsent(fromUserUsername, k -> new ArrayList<>());
+//            if(!Objects.equals(fromUserUsername, myusn))
+//                fromUserMessages.add(new Message(fullMessage.getContent(), true));
+//            else fromUserMessages.add(new Message(fullMessage.getContent(), false));
+            fromUserMessages.add(new Message(fullMessage.getContent(), false, fullMessage.getCreatedAt()));
         }
     }
 
     private void updateimage (List<FullMessage> fullMessages) {
         for (FullMessage message: fullMessages) {
             String usn1 = message.getFromUser().getUser().getUsername();
-            if (usn1!=myusn) {
+            if (!Objects.equals(usn1, myusn)) {
                 if (!allimage.containsKey(usn1)) {
                     String avatar = message.getFromUser().getAvatar();
                     allimage.put(usn1,avatar);
                 }
             }
             String usn = message.getToUser().getUser().getUsername();
-            if (usn!=myusn) {
+            if (!Objects.equals(usn, myusn)) {
                 if (!allimage.containsKey(usn)) {
                     String avatar = message.getToUser().getAvatar();
                     allimage.put(usn,avatar);
                 }
             }
-
         }
     }
 
-    private void updatesession (Map<String, List<Message>> allMessageList, Map<String, String>allImage) {
+    private void updatesession (Map<String, List<Message>> allMessageList, Map<String, String> allImage) {
         // ChatSession(String image, String usn, String message, List<Message> chathistory)
         // messages
         for (String username : allImage.keySet()) {
+            Log.d("username", username);
             List<Message> chathistory = allMessageList.get(username);
-            String image = allImage.get(username);
-            String lastmessage = chathistory.get(chathistory.size()-1).content;
-            if (chathistory!=null) {
-                ChatSession chatSession = new ChatSession(image,username,lastmessage,chathistory);
+            if (chathistory != null) {
+                String image = allImage.get(username);
+                String lastmessage = chathistory.get(chathistory.size() - 1).getContent();
+                String lasttime = chathistory.get(chathistory.size() - 1).getTime();
+                ChatSession chatSession = new ChatSession(image, username, lastmessage, lasttime, chathistory);
                 messages.add(chatSession);
             }
         }
     }
-
-
 }

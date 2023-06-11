@@ -43,16 +43,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -92,18 +84,6 @@ public class NewPostActivity extends AppCompatActivity {
     private SharedPreferences preferences;
     private String sharedPrefFile ="com.example.myapp.newPostSharedPrefs";
 
-    public String getAbsolutePath(Uri uri) {
-        String[] projection = { MediaStore.MediaColumns.DATA };
-        @SuppressWarnings("deprecation")
-        Cursor cursor = managedQuery(uri, projection, null, null, null);
-        if (cursor != null) {
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } else
-            return null;
-    }
-
     private final ActivityResultLauncher<Intent> newImageLauncher = registerForActivityResult(
         new ActivityResultContracts.StartActivityForResult(),
         result -> {
@@ -111,21 +91,7 @@ public class NewPostActivity extends AppCompatActivity {
                 Intent data = result.getData();
                 Uri selectedImageUri = data.getData();
 
-//                try {
-//                    BufferedReader br = new BufferedReader(new InputStreamReader(getContentResolver().openInputStream(selectedImageUri)));
-//                    File outputDir = getCacheDir(); // context being the Activity pointer
-//                    File outputFile = File.createTempFile("media", ".tmp", outputDir);
-//
-//                    br.read
-//
-//                } catch (FileNotFoundException e) {
-//                    throw new RuntimeException(e);
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-
                 String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
                 Cursor cursor = getContentResolver().query(selectedImageUri,
                         filePathColumn, null, null, null);
                 cursor.moveToFirst();
@@ -140,12 +106,6 @@ public class NewPostActivity extends AppCompatActivity {
                 if (file.exists()) {
                     Log.d("file", "exist");
                 }
-
-
-//                Log.d("path", selectedImageUri.getPath());
-//                String filePath = getAbsolutePath(selectedImageUri);
-//                Log.d("path", filePath);
-//                File file = new File(filePath);
 
                 ContentManager.uploadMedia(this, file, new Callback() {
                     @Override

@@ -5,12 +5,16 @@ public class Reply {
     private String usn;
     private String reply;
     private String id;
+    private String title;
+    private String time;
 
-    public Reply(String image, String usn, String reply, String id) {
+    public Reply(String image, String usn, String reply, String id, String title, String time) {
         this.image = image;
         this.usn = usn;
         this.reply = reply;
-        this.id=id;
+        this.id = id;
+        this.title = title;
+        this.time = time;
     }
 
     public String getId() {
@@ -43,5 +47,21 @@ public class Reply {
 
     public void setReply(String reply) {
         this.reply = reply;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 }

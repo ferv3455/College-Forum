@@ -49,15 +49,19 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull LikesViewHolder holder, int position) {
-        String image = likesList.get(position).getImage();
+        Like like = likesList.get(position);
+
+        String image = like.getImage();
         byte[] image1 = new byte[0];
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             image1 = Base64.getDecoder().decode(image);
         }
         Bitmap image_bitmap = BitmapFactory.decodeByteArray(image1,0, image1.length);
-        String usn = likesList.get(position).getUsn();
+
         holder.imageview.setImageBitmap(image_bitmap);
-        holder.usnview.setText(usn);
+        holder.usnview.setText(like.getUsn());
+        holder.timeview.setText(like.getTime());
+        holder.titleview.setText(like.getTitle());
     }
 
     @Override
@@ -70,11 +74,15 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesViewHolder> {
 class LikesViewHolder extends RecyclerView.ViewHolder {
     public final ImageView imageview;
     public final TextView usnview;
+    public final TextView timeview;
+    public final TextView titleview;
 
     public LikesViewHolder(@NonNull View itemView, LikesAdapter adapter) {
         super(itemView);
-        imageview = itemView.findViewById(R.id.like_item_image);
-        usnview = itemView.findViewById(R.id.like_item_text);
+        imageview = itemView.findViewById(R.id.avatar);
+        usnview = itemView.findViewById(R.id.username);
+        timeview = itemView.findViewById(R.id.datetime);
+        titleview = itemView.findViewById(R.id.postTitle);
     }
 }
 

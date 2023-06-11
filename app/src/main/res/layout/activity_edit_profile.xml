@@ -1,32 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
 
     <LinearLayout
         android:id="@+id/avatar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:gravity="center_vertical"
+        android:layout_weight="6"
+        android:padding="16dp">
 
-        <ImageView
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:gravity="center_vertical"
+            android:layout_weight="5">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/avatarImageView"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:shapeAppearanceOverlay="@style/Circular"
+                android:src="@drawable/avatar" />
+
+        </LinearLayout>
+
+        <!-- <ImageView
             android:id="@+id/avatarImageView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="start"
             android:layout_marginStart="16dp"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter" /> -->
 
         <Button
             android:id="@+id/editAvatarButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_weight="1"
             android:layout_marginEnd="16dp"
             android:text="编辑" />
 
@@ -37,23 +55,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:padding="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/avatar_layout">
+        android:layout_weight="6">
 
         <TextView
             android:id="@+id/usernameView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="5.5"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
             android:text="" />
 
         <Button
             android:id="@+id/editUsernameButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_weight="0.5"
             android:layout_marginEnd="16dp"
             android:text="编辑" />
 
@@ -64,23 +84,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:padding="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/name_layout">
+        android:layout_weight="6">
 
         <TextView
             android:id="@+id/descriptionView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="5.5"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:text="" />
 
         <Button
             android:id="@+id/editDescriptionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_weight="0.5"
             android:layout_marginEnd="16dp"
             android:text="编辑" />
 
@@ -91,23 +113,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:padding="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/description_layout">
+        android:layout_weight="6">
 
         <TextView
             android:id="@+id/passwordView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="4"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:text="密码" />
 
         <Button
             android:id="@+id/togglePasswordButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_weight="1"
             android:layout_marginEnd="16dp"
             android:visibility="invisible"
             android:text="显示密码" />
@@ -116,10 +140,10 @@
             android:id="@+id/editPasswordButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_weight="1"
             android:layout_marginEnd="16dp"
             android:text="编辑" />
 
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

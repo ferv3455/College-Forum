@@ -6,12 +6,14 @@ public class ChatSession {
     String image;
     String usn;
     String message;
+    String time;
     List<Message> chathistory;
 
-    public ChatSession(String image, String usn, String message, List<Message> chathistory) {
+    public ChatSession(String image, String usn, String message, String time, List<Message> chathistory) {
         this.image = image;
         this.usn = usn;
         this.message = message;
+        this.time = time;
         this.chathistory = chathistory;
     }
 
@@ -37,6 +39,14 @@ public class ChatSession {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public List<Message> getChathistory() {

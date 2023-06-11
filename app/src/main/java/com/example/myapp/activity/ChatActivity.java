@@ -159,7 +159,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String messageText = myInputMessage.getText().toString();
-                Message newMessage = new Message(messageText,false);
+                Message newMessage = new Message(messageText,false, "now");
                 try {
                     adapter.addMessage(newMessage,recyclerView);
                 } catch (JSONException e) {

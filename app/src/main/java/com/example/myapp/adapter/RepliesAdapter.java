@@ -50,17 +50,20 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RepliesViewHolder holder, int position) {
-        String image = repliesList.get(position).getImage();
-        String usn = repliesList.get(position).getUsn();
-        String reply = repliesList.get(position).getReply();
+        Reply reply = repliesList.get(position);
+
+        String image = reply.getImage();
         byte[] image1 = new byte[0];
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             image1 = Base64.getDecoder().decode(image);
         }
         Bitmap image_bitmap = BitmapFactory.decodeByteArray(image1,0, image1.length);
+
         holder.imageview.setImageBitmap(image_bitmap);
-        holder.usnview.setText(usn);
-        holder.replyview.setText(reply);
+        holder.usnview.setText(reply.getUsn());
+        holder.replyview.setText(reply.getReply());
+        holder.timeview.setText(reply.getTime());
+        holder.titleview.setText(reply.getTitle());
     }
 
     @Override
@@ -74,12 +77,16 @@ class RepliesViewHolder extends RecyclerView.ViewHolder {
     public final ImageView imageview;
     public final TextView usnview;
     public final TextView replyview;
+    public final TextView timeview;
+    public final TextView titleview;
 
     public RepliesViewHolder(@NonNull View itemView, RepliesAdapter adapter) {
         super(itemView);
-        imageview = itemView.findViewById(R.id.reply_item_image);
-        usnview = itemView.findViewById(R.id.reply_item_usn);
-        replyview = itemView.findViewById(R.id.reply_item_relpy);
+        imageview = itemView.findViewById(R.id.avatar);
+        usnview = itemView.findViewById(R.id.username);
+        timeview = itemView.findViewById(R.id.datetime);
+        titleview = itemView.findViewById(R.id.postTitle);
+        replyview = itemView.findViewById(R.id.postContent);
     }
 }
 

@@ -196,7 +196,7 @@ public class SpaceActivity extends AppCompatActivity {
                 String successMessage = isFollowing ? "取消关注成功" : "关注成功";
                 String failureMessage = isFollowing ? "取消关注失败, 请重试" : "关注失败, 请重试";
                 String followStateMessage = isFollowing ? "关注" : "取消关注";
-                int buttonColor = isFollowing ? Color.GREEN : Color.GRAY;
+                int buttonColor = isFollowing ? Color.BLUE : Color.GRAY;
 
                 // send the request
                 Callback callback = new Callback() {
