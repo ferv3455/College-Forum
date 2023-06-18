@@ -3,6 +3,7 @@ package com.example.myapp.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,10 +39,6 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private String avatar;
     private static final int IS_MY_MESSAGE = 1;
     private static final int IS_OTHERS_MESSAGE = 2;
-//    private String otherUsername;
-//    private Bitmap myProfile;
-//    private Bitmap otherProfile;
-//    private String myUsername;
 
     public ChatHistoryAdapter(Context context, ChatSession session, String avatar) {
         inflater = LayoutInflater.from(context);
@@ -88,24 +85,16 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         Message msg = session.getChatHistory().get(position);
         if (holder instanceof MyMessageViewHolder) {
             MyMessageViewHolder myHolder = (MyMessageViewHolder) holder;
-
-            byte[] image = new byte[0];
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                image = Base64.getDecoder().decode(avatar);
-            }
-            Bitmap profile = BitmapFactory.decodeByteArray(image,0, image.length);
+            byte[] decodedString = android.util.Base64.decode(avatar, android.util.Base64.DEFAULT);
+            Bitmap profile = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
             myHolder.myTextView.setText(msg.getContent());
             myHolder.myImage.setImageBitmap(profile);
         }
         else if (holder instanceof OtherMessageViewHolder){
             OtherMessageViewHolder otherHolder = (OtherMessageViewHolder) holder;
-
-            byte[] image = new byte[0];
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                image = Base64.getDecoder().decode(session.getAvatar());
-            }
-            Bitmap profile = BitmapFactory.decodeByteArray(image,0, image.length);
+            byte[] decodedString = android.util.Base64.decode(session.getAvatar(), android.util.Base64.DEFAULT);
+            Bitmap profile = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
             otherHolder.otherTextView.setText(msg.getContent());
             otherHolder.otherImage.setImageBitmap(profile);

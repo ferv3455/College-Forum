@@ -14,7 +14,7 @@ public class ChatSession implements Comparable<ChatSession> {
         this.avatar = avatar;
         this.username = username;
         this.chatHistory = chatHistory;
-        this.unread = 1;
+        this.unread = 0;
     }
 
     public int getUserId() {

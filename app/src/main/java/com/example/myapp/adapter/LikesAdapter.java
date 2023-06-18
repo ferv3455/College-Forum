@@ -52,11 +52,8 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesViewHolder> {
         Like like = likesList.get(position);
 
         String image = like.getImage();
-        byte[] image1 = new byte[0];
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            image1 = Base64.getDecoder().decode(image);
-        }
-        Bitmap image_bitmap = BitmapFactory.decodeByteArray(image1,0, image1.length);
+        byte[] decodedString = android.util.Base64.decode(image, android.util.Base64.DEFAULT);
+        Bitmap image_bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
         holder.imageview.setImageBitmap(image_bitmap);
         holder.usnview.setText(like.getUsn());
