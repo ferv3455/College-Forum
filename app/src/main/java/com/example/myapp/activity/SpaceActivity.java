@@ -48,11 +48,13 @@ public class SpaceActivity extends AppCompatActivity {
 
     private Fragment fragment;
     private String currentUsername;
+    private int currentUserId;
     private String currentToken;
 
     public ImageView userAvatar;
     public TextView userName;
     public TextView userDescription;
+    public Button chatButton;
     public Button followButton;
     private Set<String> followingUsernames;
 
@@ -64,18 +66,22 @@ public class SpaceActivity extends AppCompatActivity {
         userAvatar = findViewById(R.id.user_avatar);
         userName = findViewById(R.id.user_name);
         userDescription = findViewById(R.id.user_description);  // assuming you have this in your layout
+        chatButton = findViewById(R.id.chat_button);
         followButton = findViewById(R.id.follow_button);
 
         Intent intent = getIntent();
+        currentUserId = intent.getIntExtra("userid", -1);
         if (intent.hasExtra("username")) {
             currentUsername = intent.getStringExtra("username");
             if (this.currentUsername.equals(TokenManager.getSavedUsername(this))) {
+                chatButton.setVisibility(View.INVISIBLE);
                 followButton.setVisibility(View.INVISIBLE);
             }
             currentToken = TokenManager.getSavedToken(this);
         } else {
             currentToken = TokenManager.getSavedToken(this);
             currentUsername = TokenManager.getSavedUsername(this);
+            chatButton.setVisibility(View.INVISIBLE);
             followButton.setVisibility(View.INVISIBLE);
         }
 
@@ -244,6 +250,12 @@ public class SpaceActivity extends AppCompatActivity {
             }
         });
 
+        chatButton.setOnClickListener(v -> {
+            Intent chatIntent = new Intent(this, ChatActivity.class);
+            chatIntent.putExtra(ChatActivity.USERID, currentUserId);
+            chatIntent.putExtra(ChatActivity.USERNAME, currentUsername);
+            startActivity(chatIntent);
+        });
     }
 
 }

@@ -42,11 +42,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Username"
-                android:layout_weight="5"
+                android:layout_weight="4"
                 android:textColor="@color/black"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/chat_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="私信"
+                android:layout_weight="1" />
             <Button
                 android:id="@+id/follow_button"
                 android:layout_width="wrap_content"

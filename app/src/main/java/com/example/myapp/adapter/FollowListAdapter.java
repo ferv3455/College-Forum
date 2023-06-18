@@ -58,7 +58,8 @@ class FollowViewHolder extends RecyclerView.ViewHolder implements View.OnClickLi
     public void onClick(View view) {
         int position = this.getAdapterPosition();
         String objectUsername = adapter.getUsernameAt(position);
-        adapter.showFollowDetail(objectUsername);
+        int objectUserid = adapter.getUseridAt(position);
+        adapter.showFollowDetail(objectUsername, objectUserid);
     }
 }
 public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
@@ -68,7 +69,7 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
     private final FollowDetailEventListener listener;
 
     public interface FollowDetailEventListener {
-        void onDisplayFollowDetail(String username);
+        void onDisplayFollowDetail(String username, int userid);
     }
 
     public FollowListAdapter(Context context, FollowList followList, FollowDetailEventListener listener) {
@@ -173,8 +174,12 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowViewHolder> {
         return followList.get(index).getFollowerName();
     }
 
-    public void showFollowDetail(String username) {
-        listener.onDisplayFollowDetail(username);
+    public int getUseridAt(int index) {
+        return followList.get(index).getId();
+    }
+
+    public void showFollowDetail(String username, int userid) {
+        listener.onDisplayFollowDetail(username, userid);
     }
 }
 

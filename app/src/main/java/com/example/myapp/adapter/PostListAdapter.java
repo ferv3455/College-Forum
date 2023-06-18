@@ -329,6 +329,7 @@ public class PostListAdapter extends RecyclerView.Adapter<PostViewHolder> {
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), SpaceActivity.class);
                 intent.putExtra("username", post.getUsername());
+                intent.putExtra("userid", post.getUserid());
                 v.getContext().startActivity(intent);
             }
         });

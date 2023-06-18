@@ -2,58 +2,70 @@ package com.example.myapp.data;
 
 import java.util.List;
 
-public class ChatSession {
-    String image;
-    String usn;
-    String message;
-    String time;
-    List<Message> chathistory;
+public class ChatSession implements Comparable<ChatSession> {
+    int userId;
+    String avatar;
+    String username;
+    List<Message> chatHistory;
+    int unread;
 
-    public ChatSession(String image, String usn, String message, String time, List<Message> chathistory) {
-        this.image = image;
-        this.usn = usn;
-        this.message = message;
-        this.time = time;
-        this.chathistory = chathistory;
+    public ChatSession(int userId, String avatar, String username, List<Message> chatHistory) {
+        this.userId = userId;
+        this.avatar = avatar;
+        this.username = username;
+        this.chatHistory = chatHistory;
+        this.unread = 1;
     }
 
-    public String getImage() {
-        return image;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
-    public String getUsn() {
-        return usn;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setUsn(String usn) {
-        this.usn = usn;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
-    public String getMessage() {
-        return message;
+    public String getUsername() {
+        return username;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getTime() {
-        return time;
+    public Message getMessage() {
+        if (chatHistory != null && chatHistory.size() > 0) {
+            return chatHistory.get(0);
+        }
+        return null;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public List<Message> getChatHistory() {
+        return chatHistory;
     }
 
-    public List<Message> getChathistory() {
-        return chathistory;
+    public int getUnread() {
+        return unread;
     }
 
-    public void setChathistory(List<Message> chathistory) {
-        this.chathistory = chathistory;
+    public void incrUnread() {
+        this.unread++;
+    }
+
+    public void resetUnread() {
+        this.unread = 0;
+    }
+
+    @Override
+    public int compareTo(ChatSession chatSession) {
+        return this.getMessage().getTime().compareTo(chatSession.getMessage().getTime());
     }
 }

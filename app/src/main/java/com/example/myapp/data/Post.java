@@ -18,6 +18,7 @@ public class Post implements Parcelable {
     private final String content;
     private final String avatar;
     private final String username;
+    private final int userid;
     private final String[] tags;
     private final String[] images;
     private final String[] imageTypes;
@@ -36,6 +37,7 @@ public class Post implements Parcelable {
         this.content = content;
         this.avatar = "";
         this.username = username;
+        this.userid = -1;
         this.tags = tags;
         this.createdAt = new SimpleDateFormat("MM-dd HH:mm").format(new Date());
 //        this.images = new String[(int)(Math.random() * 9)];
@@ -59,6 +61,7 @@ public class Post implements Parcelable {
         this.content = content;
         this.avatar = "";
         this.username = username;
+        this.userid = -1;
         this.tags = tags;
         this.createdAt = new SimpleDateFormat("MM-dd HH:mm").format(new Date());
         this.images = images;
@@ -78,6 +81,7 @@ public class Post implements Parcelable {
         this.content = in.readString();
         this.avatar = in.readString();
         this.username = in.readString();
+        this.userid = in.readInt();
         this.tags = in.createStringArray();
         this.images = in.createStringArray();
         this.imageTypes = in.createStringArray();
@@ -102,6 +106,7 @@ public class Post implements Parcelable {
             }
             this.avatar = obj.getJSONObject("user_profile").getString("avatar");
             this.username = obj.getJSONObject("user_profile").getJSONObject("user").getString("username");
+            this.userid = obj.getJSONObject("user_profile").getJSONObject("user").getInt("id");
             this.createdAt = obj.getString("createdAt");
             this.comments = obj.getInt("comments");
             this.likes = obj.getInt("likes");
@@ -156,6 +161,10 @@ public class Post implements Parcelable {
 
     public String getUsername() {
         return username;
+    }
+
+    public int getUserid() {
+        return userid;
     }
 
     public String[] getTags() {
@@ -234,6 +243,7 @@ public class Post implements Parcelable {
         parcel.writeString(content);
         parcel.writeString(avatar);
         parcel.writeString(username);
+        parcel.writeInt(userid);
         parcel.writeStringArray(tags);
         parcel.writeStringArray(images);
         parcel.writeStringArray(imageTypes);

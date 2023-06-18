@@ -72,35 +72,35 @@ public class LoginFragment extends Fragment {
                 getActivity().setResult(Activity.RESULT_OK, replyIntent);
                 getActivity().finish();
 
-                HTTPRequest.get("account/following/" + usernameEdit.getText().toString(), token, new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        // handle the error
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        if (response.isSuccessful()) {
-                            String responseBody = response.body().string();
-                            try {
-                                JSONObject jsonObject = new JSONObject(responseBody);
-                                JSONArray followingArray = jsonObject.getJSONArray("following");
-                                Set<String> followingUsernames = new HashSet<>();
-                                for (int i = 0; i < followingArray.length(); i++) {
-                                    JSONObject followObj = followingArray.getJSONObject(i);
-                                    String followName = followObj.getJSONObject("user").getString("username");
-                                    followingUsernames.add(followName);
-                                }
-
-                                // Save the following list
-                                SharedPreferences prefs = getActivity().getSharedPreferences("FollowListPrefs", Context.MODE_PRIVATE);
-                                prefs.edit().putStringSet("followingList", followingUsernames).apply();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });
+//                HTTPRequest.get("account/following/" + usernameEdit.getText().toString(), token, new Callback() {
+//                    @Override
+//                    public void onFailure(Call call, IOException e) {
+//                        // handle the error
+//                    }
+//
+//                    @Override
+//                    public void onResponse(Call call, Response response) throws IOException {
+//                        if (response.isSuccessful()) {
+//                            String responseBody = response.body().string();
+//                            try {
+//                                JSONObject jsonObject = new JSONObject(responseBody);
+//                                JSONArray followingArray = jsonObject.getJSONArray("following");
+//                                Set<String> followingUsernames = new HashSet<>();
+//                                for (int i = 0; i < followingArray.length(); i++) {
+//                                    JSONObject followObj = followingArray.getJSONObject(i);
+//                                    String followName = followObj.getJSONObject("user").getString("username");
+//                                    followingUsernames.add(followName);
+//                                }
+//
+//                                // Save the following list
+//                                SharedPreferences prefs = getActivity().getSharedPreferences("FollowListPrefs", Context.MODE_PRIVATE);
+//                                prefs.edit().putStringSet("followingList", followingUsernames).apply();
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                });
             }
         }));
 

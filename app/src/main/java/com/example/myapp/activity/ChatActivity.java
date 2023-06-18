@@ -8,12 +8,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapp.R;
 import com.example.myapp.adapter.ChatHistoryAdapter;
 import com.example.myapp.connection.TokenManager;
+import com.example.myapp.data.ChatSession;
 import com.example.myapp.data.Message;
 import com.example.myapp.connection.HTTPRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -23,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,6 +34,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 
 import okhttp3.Call;
@@ -37,136 +42,202 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class ChatActivity extends AppCompatActivity {
+    private static final String PREF_FILE ="com.example.myapp.messageSharedPrefs";
+    private static final String SESSION_LIST = "SESSION_LIST";
+    private static final String AVATAR = "AVATAR";
+
+    public static final String USERID = "USERID";
+    public static final String USERNAME = "USERNAME";
+
+    private List<ChatSession> sessions;
+    private ChatSession session;
+    private String avatar;
+
     TextView titleView;
     EditText myInputMessage;
     Button sendMessage;
+
     RecyclerView recyclerView;
     ChatHistoryAdapter adapter;
-    Bitmap otherProfileImage;
-    Bitmap myProfileImage;
-    String myusn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        Bundle bundle = getIntent().getExtras();
-        String chatHistoryJson = bundle.getString("chatHistoryJson");
-        String username = bundle.getString("username");
-        Gson gson = new Gson();
-        Type listType = new TypeToken<ArrayList<Message>>(){}.getType();
-        ArrayList<Message> chatHistory = gson.fromJson(chatHistoryJson, listType);
+        // Get session list
+        SharedPreferences sharedPref = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        String sessionJson = sharedPref.getString(SESSION_LIST, "");
+        avatar = sharedPref.getString(AVATAR, "");
 
+        if (!sessionJson.equals("")) {
+            Type type = new TypeToken<ArrayList<ChatSession>>() {}.getType();
+            sessions = new Gson().fromJson(sessionJson, type);
+        } else {
+            sessions = new ArrayList<>();
+        }
+
+        // Get user id
+        Intent intent = getIntent();
+        int userId = intent.getIntExtra(USERID, -1);
+        String username = intent.getStringExtra(USERNAME);
+        assert userId >= 0;
+
+        // Get session (add if not exists)
+        session = findSession(userId);
+        if (session == null) {
+            session = new ChatSession(userId, "", username, new ArrayList<>());
+            sessions.add(session);
+        }
+
+        session.resetUnread();
+
+        // Views
         titleView = findViewById(R.id.chatActivityTitle);
         recyclerView = findViewById(R.id.chatRecyclerView);
         myInputMessage = findViewById(R.id.sendChatEdit);
         sendMessage = findViewById(R.id.sendChatButton);
+
+        titleView.setText(username);
+
         // false 指的是自己发的
         // 从后端获取聊天信息
-        List<Message> msgList = chatHistory;
-
-        adapter = new ChatHistoryAdapter(this, msgList);
+        adapter = new ChatHistoryAdapter(this, session, avatar);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                if (bottom < oldBottom) {
-                    recyclerView.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
-                        }
-                    }, 100);
-                }
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (bottom < oldBottom && adapter.getItemCount() > 0) {
+                recyclerView.postDelayed(() -> recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1), 100);
             }
         });
-        titleView.setText(username);
-        adapter.setOtherUsername(username);
 
-        String token = TokenManager.getSavedToken(this);
-        HTTPRequest.get("account/profile",token,new Callback(){
+        sendMessage.setOnClickListener(v -> {
+            String messageText = myInputMessage.getText().toString();
+            JSONObject params = new JSONObject();
+            try {
+                params.put("user", session.getUsername());
+                params.put("content", messageText);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            HTTPRequest.post("notification/messages/", params.toString(), TokenManager.getSavedToken(this), new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                }
+
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        String responseData = response.body().string();
+                        try {
+                            // 将返回的 JSON 数据解析为 FullMessage 类型的列表
+                            JSONObject jsonObject = new JSONObject(responseData);
+                            String time = jsonObject.getString("time");
+                            Message newMessage = new Message(messageText, false, time);
+                            session.getChatHistory().add(0, newMessage);
+
+                            runOnUiThread(() -> {
+                                adapter.notifyDataSetChanged();
+                                adapter.scrollToBottom(recyclerView);
+                                myInputMessage.setText("");
+                            });
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            });
+        });
+
+        HTTPRequest.get("account/profile", TokenManager.getSavedToken(this), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-
             }
 
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    // 处理请求失败的情况
-                } else {
+                if (response.isSuccessful()) {
                     String responseData = response.body().string();
                     try {
-                        // 将返回的 JSON 数据解析为对象
                         JSONObject jsonObject = new JSONObject(responseData);
-                        // 获取 user 字段的值
-                        JSONObject userObject = jsonObject.getJSONObject("user");
-                        int id = userObject.getInt("id");
-                        String username = userObject.getString("username");
-                        String avatar = jsonObject.getString("avatar");
-                        // 对解析后的数据进行处理
-                        byte[] image = new byte[0];
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            image = Base64.getDecoder().decode(avatar);
+                        String newAvatar = jsonObject.getString("avatar");
+
+                        if (!newAvatar.equals(avatar)) {
+                            avatar = newAvatar;
+                            SharedPreferences preferences = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+                            SharedPreferences.Editor preferencesEditor = preferences.edit();
+                            preferencesEditor.putString(AVATAR, newAvatar);
+                            preferencesEditor.apply();
                         }
-                        myProfileImage = BitmapFactory.decodeByteArray(image,0, image.length);
-                        HTTPRequest.get("account/profile/"+username,token,new Callback(){
-                            @Override
-                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
-                            }
-
-                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                                if (!response.isSuccessful()) {
-                                    // 处理请求失败的情况
-                                } else {
-                                    String responseData = response.body().string();
-                                    try {
-                                        // 将返回的 JSON 数据解析为对象
-                                        JSONObject jsonObject = new JSONObject(responseData);
-                                        // 获取 user 字段的值
-                                        JSONObject userObject = jsonObject.getJSONObject("user");
-                                        int id = userObject.getInt("id");
-                                        myusn = userObject.getString("username");
-                                        adapter.setmyUsername(myusn);
-                                        String avatar = jsonObject.getString("avatar");
-                                        // 对解析后的数据进行处理
-                                        byte[] image = new byte[0];
-                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                            image = Base64.getDecoder().decode(avatar);
-                                        }
-                                        otherProfileImage = BitmapFactory.decodeByteArray(image,0, image.length);
-                                        adapter.setProfiles(myProfileImage,otherProfileImage);
-                                    } catch (JSONException e) {
-                                        // 处理 JSON 解析异常
-                                    }
-                                }
-                            }
-                        });
+                        if (adapter != null) {
+                            runOnUiThread(() -> {
+                                adapter.setAvatar(avatar);
+                                adapter.notifyDataSetChanged();
+                                adapter.scrollToBottom(recyclerView);
+                            });
+                        }
                     } catch (JSONException e) {
-                        // 处理 JSON 解析异常
+                        e.printStackTrace();
                     }
                 }
             }
         });
 
-
-
-
-
-        sendMessage.setOnClickListener(new View.OnClickListener() {
+        HTTPRequest.get("account/profile/" + username, TokenManager.getSavedToken(this), new Callback() {
             @Override
-            public void onClick(View v) {
-                String messageText = myInputMessage.getText().toString();
-                Message newMessage = new Message(messageText,false, "now");
-                try {
-                    adapter.addMessage(newMessage,recyclerView);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            }
+
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseData);
+                        String newOppAvatar = jsonObject.getString("avatar");
+
+                        if (!newOppAvatar.equals(session.getAvatar())) {
+                            session.setAvatar(newOppAvatar);
+                        }
+
+                        if (adapter != null) {
+                            runOnUiThread(() -> {
+                                adapter.notifyDataSetChanged();
+                                adapter.scrollToBottom(recyclerView);
+                            });
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-                myInputMessage.setText("");
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Collections.sort(sessions);
+
+        String sessionsJson = new Gson().toJson(sessions);
+        SharedPreferences preferences = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor preferencesEditor = preferences.edit();
+        preferencesEditor.putString(SESSION_LIST, sessionsJson);
+        preferencesEditor.apply();
+
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    private ChatSession findSession(int userId) {
+        for (ChatSession session : sessions) {
+            if (session.getUserId() == userId) {
+                return session;
+            }
+        }
+        return null;
     }
 }

@@ -182,9 +182,9 @@ public class DetailActivity extends AppCompatActivity implements GridViewAdapter
         avatarView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameView.getText().toString();
                 Intent intent = new Intent(DetailActivity.this, SpaceActivity.class);
-                intent.putExtra("username", username);
+                intent.putExtra("username", post.getUsername());
+                intent.putExtra("userid", post.getUserid());
                 startActivity(intent);
             }
         });

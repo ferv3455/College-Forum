@@ -2,6 +2,7 @@ package com.example.myapp.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +13,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
+import com.example.myapp.activity.ChatActivity;
 import com.example.myapp.connection.HTTPRequest;
 import com.example.myapp.connection.TokenManager;
+import com.example.myapp.data.ChatSession;
 import com.example.myapp.data.Message;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.BitSet;
 import java.util.List;
 
@@ -28,20 +32,22 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private final Context context;
     private final LayoutInflater inflater;
-    Context context;
-    private final List<Message> msgList;
-    private static final  int IS_MY_MESSAGE = 1;
-    private static final  int IS_OTHERS_MESSAGE = 2;
-    private String otherUsername;
-    private Bitmap myProfile;
-    private Bitmap otherProfile;
-    private String myUsername;
+    private final ChatSession session;
+    private String avatar;
+    private static final int IS_MY_MESSAGE = 1;
+    private static final int IS_OTHERS_MESSAGE = 2;
+//    private String otherUsername;
+//    private Bitmap myProfile;
+//    private Bitmap otherProfile;
+//    private String myUsername;
 
-    public ChatHistoryAdapter(Context context, List<Message> msgList) {
-        this.context = context;
+    public ChatHistoryAdapter(Context context, ChatSession session, String avatar) {
         inflater = LayoutInflater.from(context);
-        this.msgList = msgList;
+        this.context = context;
+        this.session = session;
+        this.avatar = avatar;
     }
 
     private static class MyMessageViewHolder extends RecyclerView.ViewHolder {
@@ -64,44 +70,56 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate an item view
         if (viewType == IS_MY_MESSAGE) {
             View mItemView = inflater.inflate(R.layout.bubble_item_mine, parent, false);
-            return new MyMessageViewHolder (mItemView,this);
-        } else if (viewType == IS_OTHERS_MESSAGE) {
+            return new MyMessageViewHolder(mItemView, this);
+        } else {
             View mItemView = inflater.inflate(R.layout.bubble_item_others, parent, false);
             return new OtherMessageViewHolder(mItemView, this);
         }
-        return null;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Message msg = msgList.get(position);
+        Message msg = session.getChatHistory().get(position);
         if (holder instanceof MyMessageViewHolder) {
             MyMessageViewHolder myHolder = (MyMessageViewHolder) holder;
+
+            byte[] image = new byte[0];
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                image = Base64.getDecoder().decode(avatar);
+            }
+            Bitmap profile = BitmapFactory.decodeByteArray(image,0, image.length);
+
             myHolder.myTextView.setText(msg.getContent());
-            myHolder.myImage.setImageBitmap(myProfile);
+            myHolder.myImage.setImageBitmap(profile);
         }
         else if (holder instanceof OtherMessageViewHolder){
             OtherMessageViewHolder otherHolder = (OtherMessageViewHolder) holder;
+
+            byte[] image = new byte[0];
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                image = Base64.getDecoder().decode(session.getAvatar());
+            }
+            Bitmap profile = BitmapFactory.decodeByteArray(image,0, image.length);
+
             otherHolder.otherTextView.setText(msg.getContent());
-            otherHolder.otherImage.setImageBitmap(otherProfile);
+            otherHolder.otherImage.setImageBitmap(profile);
         }
     }
 
     @Override
     public int getItemCount() {
-        return msgList.size();
+        return session.getChatHistory().size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        Message message = msgList.get(position);
+        Message message = session.getChatHistory().get(position);
         if (message.isIncoming() == false) {
             return IS_MY_MESSAGE;
         }
@@ -109,39 +127,13 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             return IS_OTHERS_MESSAGE;
         }
     }
+
     public void scrollToBottom(RecyclerView recyclerView) {
-        int position = msgList.size() - 1;
+        int position = session.getChatHistory().size() - 1;
         recyclerView.scrollToPosition(position);
     }
-    public  void  addMessage(Message message, RecyclerView recyclerView) throws JSONException {
-        msgList.add(message);
-        // post消息
-        String token = TokenManager.getSavedToken(context);
-        JSONObject json = new JSONObject();
-        json.put("user",myUsername);
-        json.put("content",message.content);
-        HTTPRequest.post("notification/messages/",json.toString(), token, new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-
-            }
-        });
-        notifyDataSetChanged();
-        scrollToBottom(recyclerView);
-    }
-    public void setOtherUsername(String usn) {
-        this.otherUsername = usn;
-    }
-    public void setmyUsername(String usn) {
-        this.myUsername = usn;
-    }
-    public void setProfiles (Bitmap myProfile, Bitmap otherProfile){
-        this.myProfile = myProfile;
-        this.otherProfile = otherProfile;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

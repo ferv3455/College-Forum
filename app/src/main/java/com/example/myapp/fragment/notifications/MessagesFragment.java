@@ -1,10 +1,14 @@
 package com.example.myapp.fragment.notifications;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,22 +21,32 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myapp.R;
+import com.example.myapp.activity.ChatActivity;
+import com.example.myapp.activity.MainActivity;
+import com.example.myapp.activity.NewPostActivity;
 import com.example.myapp.adapter.LikesAdapter;
 import com.example.myapp.adapter.MessageAdapter;
 import com.example.myapp.connection.HTTPRequest;
 import com.example.myapp.connection.TokenManager;
 import com.example.myapp.data.ChatSession;
+import com.example.myapp.data.Like;
 import com.example.myapp.data.Message;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -47,174 +61,86 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class MessagesFragment extends Fragment {
+public class MessagesFragment extends Fragment implements MessageAdapter.ChatEventListener {
+    private static final String PREF_FILE ="com.example.myapp.messageSharedPrefs";
+    private static final String SESSION_LIST = "SESSION_LIST";
+    private static final String AVATAR = "AVATAR";
 
-    private final List<ChatSession> messages = new ArrayList<>(); // 这是要往adapter传的信息，对应我在message页面需要的信息
-    private final List<FullMessage> allMessages = new ArrayList<>();  // 这是全部的信息，将他持久化存储就可以了，别的无所谓
-    Map<String, String> allimage = new HashMap<>();  // 这是所有图片，可以通过username来获取
-    Map<String, List<Message>> allMessageList = new HashMap<>();  // 这是所有人的聊天记录，可以通过username获取
+    private List<ChatSession> sessions;
+
+    private Context context;
     private RecyclerView recyclerView;
     private MessageAdapter adapter;
-    private String myusn;
     private SwipeRefreshLayout refreshLayout;
 
-    public static class FullMessage{
-        private User fromUser;
-        private User toUser;
-        private String content;
-        private String createdAt;
+    private String avatar;
 
-        public FullMessage(User fromUser, User toUser, String content, String createdAt) {
-            this.fromUser = fromUser;
-            this.toUser = toUser;
-            this.content = content;
-            this.createdAt = createdAt;
-        }
-
-        public User getFromUser() {
-            return fromUser;
-        }
-
-        public void setFromUser(User fromUser) {
-            this.fromUser = fromUser;
-        }
-
-        public User getToUser() {
-            return toUser;
-        }
-
-        public void setToUser(User toUser) {
-            this.toUser = toUser;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        public String getCreatedAt() {
-            return createdAt;
-        }
-
-        public void setCreatedAt(String createdAt) {
-            this.createdAt = createdAt;
-        }
-
-        public static class User {
-            private UserProfile user;
-            private String avatar;
-            private String description;
-
-            // 构造函数、getter和setter方法省略
-
-            public User(UserProfile user, String avatar, String description) {
-                this.user = user;
-                this.avatar = avatar;
-                this.description = description;
-            }
-
-            public UserProfile getUser() {
-                return user;
-            }
-
-            public void setUser(UserProfile user) {
-                this.user = user;
-            }
-
-            public String getAvatar() {
-                return avatar;
-            }
-
-            public void setAvatar(String avatar) {
-                this.avatar = avatar;
-            }
-
-            public String getDescription() {
-                return description;
-            }
-
-            public void setDescription(String description) {
-                this.description = description;
-            }
-
-            // 内部类表示用户详细信息
-            public static class UserProfile {
-                private int id;
-                private String username;
-                // 构造函数、getter和setter方法省略
-
-                public UserProfile(int id, String username) {
-                    this.id = id;
-                    this.username = username;
-                }
-
-                public int getId() {
-                    return id;
-                }
-
-                public void setId(int id) {
-                    this.id = id;
-                }
-
-                public String getUsername() {
-                    return username;
-                }
-
-                public void setUsername(String username) {
-                    this.username = username;
-                }
-            }
-        }
-    }
+    private final ActivityResultLauncher<Intent> chatLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> updateSessionsFromStorage()
+    );
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Context context = getContext();
         View view = inflater.inflate(R.layout.fragment_notifications_messages, container, false);
 
         refreshLayout = view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener(this::updateMessages);
 
-        // shared preference
-        // TODO
+        // Get saved session list from shared preference
+        context = getContext();
+        assert context != null;
+        SharedPreferences sharedPref = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        String sessionJson = sharedPref.getString(SESSION_LIST, "");
+        avatar = sharedPref.getString(AVATAR, "");
+//        Log.d("list", sessionJson);
 
+        if (!sessionJson.equals("")) {
+            Type type = new TypeToken<ArrayList<ChatSession>>() {}.getType();
+            sessions = new Gson().fromJson(sessionJson, type);
+//            Log.d("list", String.valueOf(sessions.size()));
+        } else {
+            sessions = new ArrayList<>();
+        }
+
+        // Recycler view
         recyclerView = view.findViewById(R.id.message_recycle);
-        adapter = new MessageAdapter(context, messages);
+        adapter = new MessageAdapter(context, sessions, this);
         recyclerView.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(layoutManager);
 
-        String token = TokenManager.getSavedToken(getContext());
-        HTTPRequest.get("account/profile", token, new Callback() {
+        // Update personal information (useful in session list update)
+        HTTPRequest.get("account/profile", TokenManager.getSavedToken(context), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-
             }
 
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    // 处理请求失败的情况
-                } else {
+                if (response.isSuccessful()) {
                     String responseData = response.body().string();
                     try {
-                        // 将返回的 JSON 数据解析为对象
                         JSONObject jsonObject = new JSONObject(responseData);
-                        // 获取 user 字段的值
-                        JSONObject userObject = jsonObject.getJSONObject("user");
-                        myusn = userObject.getString("username");
+                        String newAvatar = jsonObject.getString("avatar");
+
+                        if (!newAvatar.equals(avatar)) {
+                            avatar = newAvatar;
+                            SharedPreferences preferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+                            SharedPreferences.Editor preferencesEditor = preferences.edit();
+                            preferencesEditor.putString(AVATAR, newAvatar);
+                            preferencesEditor.apply();
+                        }
                     } catch (JSONException e) {
-                        // 处理 JSON 解析异常
+                        e.printStackTrace();
                     }
                 }
             }
@@ -242,15 +168,16 @@ public class MessagesFragment extends Fragment {
                         JSONArray jsonArray = new JSONArray(responseData);
                         if (jsonArray.length() > 0) {
                             // 更新消息列表
-                            parseFullMessages(responseData);
-                            updateAllMessageList(allMessages);
-                            updateimage(allMessages);
-                            updatesession(allMessageList, allimage);
-                            allMessages.clear();
-
+                            updateSessions(jsonArray);
                             getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
 
-                            // sharedpreference TODO
+                            // Shared Preference
+                            String sessionsJson = new Gson().toJson(sessions);
+//                            Log.d("save", sessionsJson);
+                            SharedPreferences preferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+                            SharedPreferences.Editor preferencesEditor = preferences.edit();
+                            preferencesEditor.putString(SESSION_LIST, sessionsJson);
+                            preferencesEditor.apply();
 
                             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
                             TimeZone tz = TimeZone.getTimeZone("Asia/Shanghai");
@@ -262,14 +189,12 @@ public class MessagesFragment extends Fragment {
                             HTTPRequest.post("notification/messages-received/", json.toString(), token, new Callback() {
                                 @Override
                                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                                    Log.e("PostTime", "Failed to post time: " + e.getMessage(), e);
+                                    Log.e("Receive Message", "Failed to post time: " + e.getMessage(), e);
                                 }
 
                                 @Override
                                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                                    if (response.isSuccessful()) {
-                                        Log.i("PostTime", "Successfully posted time");
-                                    } else {
+                                    if (!response.isSuccessful()) {
                                         throw new IOException("Unexpected code " + response);
                                     }
                                 }
@@ -288,90 +213,66 @@ public class MessagesFragment extends Fragment {
         });
     }
 
-    private void parseFullMessages(String responseData) throws JSONException {
-        JSONArray jsonArray = new JSONArray(responseData);
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject jsonMessage = jsonArray.getJSONObject(i);
+    private void updateSessions(JSONArray messageList) throws JSONException {
+        // Insert messages
+        for (int i = 0; i < messageList.length(); i++) {
+            JSONObject jsonMessage = messageList.getJSONObject(i);
             JSONObject jsonFromUser = jsonMessage.getJSONObject("fromUser");
-            JSONObject jsonToUser = jsonMessage.getJSONObject("toUser");
 
-            FullMessage.User.UserProfile fromUserProfile = new FullMessage.User.UserProfile(
-                    jsonFromUser.getJSONObject("user").getInt("id"),
-                    jsonFromUser.getJSONObject("user").getString("username")
-            );
-            FullMessage.User.UserProfile toUserProfile = new FullMessage.User.UserProfile(
-                    jsonToUser.getJSONObject("user").getInt("id"),
-                    jsonToUser.getJSONObject("user").getString("username")
-            );
+            Message newMsg = new Message(jsonMessage.getString("content"), true,
+                    jsonMessage.getString("createdAt"));
 
-            FullMessage.User fromUser = new FullMessage.User(
-                    fromUserProfile,
-                    jsonFromUser.getString("avatar"),
-                    jsonFromUser.getString("description")
-            );
-            FullMessage.User toUser = new FullMessage.User(
-                    toUserProfile,
-                    jsonToUser.getString("avatar"),
-                    jsonToUser.getString("description")
-            );
+            int userId = jsonFromUser.getJSONObject("user").getInt("id");
+            String username = jsonFromUser.getJSONObject("user").getString("username");
+            String avatar = jsonFromUser.getString("avatar");
 
-            FullMessage fullMessage = new FullMessage(
-                    fromUser,
-                    toUser,
-                    jsonMessage.getString("content"),
-                    jsonMessage.getString("createdAt")
-            );
+            ChatSession session = findSession(userId);
+            if (session == null) {
+                session = new ChatSession(userId, avatar, username, new ArrayList<>());
+                sessions.add(session);
+            }
 
-            allMessages.add(fullMessage);
+            ((ArrayList<Message>) session.getChatHistory()).add(0, newMsg);
+            session.incrUnread();
         }
+
+        // Sort sessions
+        Collections.sort(sessions);
     }
 
-    private void updateAllMessageList (List<FullMessage> fullMessages) {
-        for (FullMessage fullMessage : fullMessages) {
-            String fromUserUsername = fullMessage.getFromUser().getUser().getUsername();
-//            if (!allMessageList.containsKey(fromUserUsername)) {
-//                allMessageList.put(fromUserUsername, new ArrayList<>());
-//            }
-            List<Message> fromUserMessages = allMessageList.computeIfAbsent(fromUserUsername, k -> new ArrayList<>());
-//            if(!Objects.equals(fromUserUsername, myusn))
-//                fromUserMessages.add(new Message(fullMessage.getContent(), true));
-//            else fromUserMessages.add(new Message(fullMessage.getContent(), false));
-            fromUserMessages.add(new Message(fullMessage.getContent(), false, fullMessage.getCreatedAt()));
+    private ChatSession findSession(int userId) {
+        for (ChatSession session : sessions) {
+            if (session.getUserId() == userId) {
+                return session;
+            }
         }
+        return null;
     }
 
-    private void updateimage (List<FullMessage> fullMessages) {
-        for (FullMessage message: fullMessages) {
-            String usn1 = message.getFromUser().getUser().getUsername();
-            if (!Objects.equals(usn1, myusn)) {
-                if (!allimage.containsKey(usn1)) {
-                    String avatar = message.getFromUser().getAvatar();
-                    allimage.put(usn1,avatar);
-                }
-            }
-            String usn = message.getToUser().getUser().getUsername();
-            if (!Objects.equals(usn, myusn)) {
-                if (!allimage.containsKey(usn)) {
-                    String avatar = message.getToUser().getAvatar();
-                    allimage.put(usn,avatar);
-                }
-            }
+    private void updateSessionsFromStorage() {
+        SharedPreferences sharedPref = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        String sessionJson = sharedPref.getString(SESSION_LIST, "");
+        avatar = sharedPref.getString(AVATAR, "");
+        ArrayList<ChatSession> newSessions;
+        Log.d("new session", sessionJson);
+
+        if (!sessionJson.equals("")) {
+            Type type = new TypeToken<ArrayList<ChatSession>>() {}.getType();
+            newSessions = new Gson().fromJson(sessionJson, type);
+        } else {
+            newSessions = new ArrayList<>();
         }
+
+        sessions.clear();
+        sessions.addAll(newSessions);
+        adapter.notifyDataSetChanged();
     }
 
-    private void updatesession (Map<String, List<Message>> allMessageList, Map<String, String> allImage) {
-        // ChatSession(String image, String usn, String message, List<Message> chathistory)
-        // messages
-        for (String username : allImage.keySet()) {
-            Log.d("username", username);
-            List<Message> chathistory = allMessageList.get(username);
-            if (chathistory != null) {
-                String image = allImage.get(username);
-                String lastmessage = chathistory.get(chathistory.size() - 1).getContent();
-                String lasttime = chathistory.get(chathistory.size() - 1).getTime();
-                ChatSession chatSession = new ChatSession(image, username, lastmessage, lasttime, chathistory);
-                messages.add(chatSession);
-            }
-        }
+    @Override
+    public void onEnterChat(int userId, String username) {
+        Intent intent = new Intent(getActivity(), ChatActivity.class);
+        intent.putExtra(ChatActivity.USERID, userId);
+        intent.putExtra(ChatActivity.USERNAME, username);
+        chatLauncher.launch(intent);
     }
 }

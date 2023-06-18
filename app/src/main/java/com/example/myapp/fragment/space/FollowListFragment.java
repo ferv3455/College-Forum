@@ -127,10 +127,11 @@ public class FollowListFragment extends Fragment implements FollowListAdapter.Fo
     }
 
     @Override
-    public void onDisplayFollowDetail(String username) {
+    public void onDisplayFollowDetail(String username, int userid) {
         // 创建 Intent 并将用户名作为额外数据
         Intent intent = new Intent(getActivity(), SpaceActivity.class);
         intent.putExtra("username", username);
+        intent.putExtra("userid", userid);
 
         // 启动 SpaceActivity
         startActivity(intent);
